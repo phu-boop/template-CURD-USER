@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
@@ -11,34 +13,31 @@ import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.service.UserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
+
     UserService userService;
 
     @PostMapping
-    public ApiRespond<UserRespond> createUser(@RequestBody @Valid UserRequest userRequest){
-        ApiRespond<UserRespond> apiRespond = new ApiRespond<>();
-        apiRespond.setCode("1000");
-        apiRespond.setMessage("Create User Successfully");
-        apiRespond.setData(userService.createUser(userRequest));
-        return apiRespond;
+    public ResponseEntity<ApiRespond<UserRespond>> createUser(@Valid @RequestBody UserRequest userRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiRespond.success("Create User Successfully", userService.createUser(userRequest)));
     }
+
     @PutMapping("/{id}")
-    public ApiRespond<UserRespond> updateUser(@PathVariable  Long id,@RequestBody @Valid UserRequest userRequest){
-        ApiRespond<UserRespond> apiRespond = new ApiRespond<>();
-        apiRespond.setCode("1000");
-        apiRespond.setMessage("Update User Successfully");
-        apiRespond.setData(userService.updateUser(id, userRequest));
-        return apiRespond;
+    public ResponseEntity<ApiRespond<UserRespond>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRequest userRequest) {
+        return ResponseEntity.ok(
+                ApiRespond.success("Update User Successfully", userService.updateUser(id, userRequest))
+        );
     }
+
     @DeleteMapping("/{id}")
-    public ApiRespond<?> deleteUser(@PathVariable Long id){
-        ApiRespond<UserRespond> apiRespond = new ApiRespond<>();
-        apiRespond.setCode("1000");
-        apiRespond.setMessage("Delete User Successfully");
+    public ResponseEntity<ApiRespond<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return apiRespond;
+        return ResponseEntity.ok(ApiRespond.success("Delete User Successfully", null));
     }
 }

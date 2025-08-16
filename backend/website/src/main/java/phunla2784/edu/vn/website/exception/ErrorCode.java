@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    //
+    SUCCESS("1000", "Success"),
     // ===== 2xxx - Client errors =====
     VALIDATION_ERROR("2001", "Validation failed"),
     BAD_REQUEST("2002", "Bad request"),

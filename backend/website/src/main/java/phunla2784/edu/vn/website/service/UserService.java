@@ -34,13 +34,23 @@ public class UserService {
     public UserRespond updateUser(Long id,UserRequest userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!user.getEmail().equals(userRequest.getEmail())
+        && userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+        if (!user.getPhone().equals(userRequest.getPhone())
+                && userRepository.existsByPhone(userRequest.getPhone())) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
+        }
         userMapper.updateUserFromRequest(userRequest, user);
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
        }
-     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        userRepository.delete(user);
+    public void deleteUser(Long id) {
+        userRepository.delete(getUserById(id));
+    }
+    private User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
     }
 }
