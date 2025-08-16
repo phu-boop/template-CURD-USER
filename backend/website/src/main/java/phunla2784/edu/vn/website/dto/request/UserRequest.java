@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import phunla2784.edu.vn.website.enums.Gender;
+import phunla2784.edu.vn.website.enums.Role;
 
 import java.time.LocalDate;
 
@@ -25,4 +26,5 @@ public class UserRequest {
     String city;
     String country;
     Gender gender;
+    Role role;
 }

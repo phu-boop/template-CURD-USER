@@ -1,1 +1,0 @@
-return về status code khi vlidate không thành cồng

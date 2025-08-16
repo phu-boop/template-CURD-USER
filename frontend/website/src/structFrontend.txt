@@ -1,0 +1,43 @@
+src/
+ ├─ api/               # Chứa logic gọi API (fetch, axios service)
+ │   ├─ http.ts        # Cấu hình axios/fetch chung
+ │   └─ userApi.ts     # Ví dụ API cho user
+ │
+ ├─ components/        # Reusable UI components
+ │   ├─ Button.tsx
+ │   └─ Navbar.tsx
+ │
+ ├─ features/          # Tách theo module / domain (User, Auth, Product…)
+ │   └─ auth/
+ │       ├─ pages/
+ │       │   └─ LoginPage.tsx
+ │       ├─ components/
+ │       │   └─ LoginForm.tsx
+ │       └─ hooks/
+ │           └─ useLogin.ts
+ │
+ ├─ hooks/             # Custom hooks dùng chung (useAuth, useDebounce…)
+ │   └─ useAuth.ts
+ │
+ ├─ layouts/           # Layouts (AdminLayout, AuthLayout…)
+ │   └─ MainLayout.tsx
+ │
+ ├─ pages/             # Pages cấp cao (Home, About, Dashboard…)
+ │   ├─ HomePage.tsx
+ │   └─ NotFound.tsx
+ │
+ ├─ routes/            # Định nghĩa route (React Router v6+)
+ │   └─ index.tsx
+ │
+ ├─ store/             # State management (Redux, Zustand, Recoil…)
+ │   └─ index.ts
+ │
+ ├─ types/             # Khai báo TypeScript types/interfaces
+ │   └─ user.ts
+ │
+ ├─ utils/             # Hàm tiện ích (formatDate, constants…)
+ │   └─ formatDate.ts
+ │
+ ├─ App.tsx
+ ├─ main.tsx
+ └─ index.css
