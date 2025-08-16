@@ -3,6 +3,8 @@ package phunla2784.edu.vn.website.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
@@ -17,6 +19,8 @@ import phunla2784.edu.vn.website.repository.UserRepository;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     UserMapper userMapper;
 
     UserRepository userRepository;
@@ -28,6 +32,7 @@ public class UserService {
             throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
         }
         User user = userMapper.userRequesttoUser(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
     }

@@ -9,4 +9,5 @@ import phunla2784.edu.vn.website.entity.User;
 public interface UserRepository extends JpaRepository<User,Long> {
     Boolean existsByEmail(String email);
     Boolean existsByPhone(String phone);
+    User findByEmail(String email);
 }
