@@ -19,6 +19,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        System.out.println("hihi" );
         try {
             String token = authService.login(
                     credentials.get("email"),

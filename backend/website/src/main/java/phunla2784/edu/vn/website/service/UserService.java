@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.entity.User;
+import phunla2784.edu.vn.website.enums.Role;
 import phunla2784.edu.vn.website.exception.AppException;
 import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.mapper.UserMapper;
@@ -33,6 +34,7 @@ public class UserService {
         }
         User user = userMapper.userRequesttoUser(userRequest);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        user.setRole(Role.User);
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
     }

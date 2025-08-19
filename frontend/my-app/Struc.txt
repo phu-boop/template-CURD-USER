@@ -1,0 +1,52 @@
+src/
+│── assets/             # Ảnh, icon, font, css global
+│   ├── images/
+│   ├── icons/
+│   └── styles/
+│
+│── components/         # Component dùng chung (button, modal, input…)
+│   ├── Button/
+│   │   ├── Button.jsx
+│   │   └──
+│   └── Modal/
+│       ├── Modal.jsx
+│       └──
+│
+│── features/           # Theo tính năng (Auth, Dashboard, Product…)
+│   ├── auth/
+│   │   ├── components/  # component riêng của tính năng này
+│   │   ├── pages/       # các page của tính năng
+│   │   ├── hooks/
+│   │   └── authSlice.js # Redux slice hoặc context
+│   │
+│   ├── product/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── productSlice.js
+│
+│── hooks/              # custom hooks tái sử dụng
+│   └── useAuth.js
+│
+│── layouts/            # Layouts (AdminLayout, UserLayout…)
+│   ├── AdminLayout.jsx
+│   └── UserLayout.jsx
+│
+│── pages/              # Các trang chính (Home, Login, Register…)
+│   ├── Home.jsx
+│   ├── Login.jsx
+│   └── Register.jsx
+│
+│── services/           # API gọi backend
+│   ├── apiClient.js
+│   └── productService.js
+│
+│── store/              # Redux store hoặc Zustand, Recoil…
+│   └── store.js
+│
+│── utils/              # Hàm tiện ích chung
+│   └── formatDate.js
+│
+│── App.jsx
+│── main.jsx            # entry point (vite) hoặc index.js (CRA)
+└── routes/             # Cấu hình router
+    └── index.jsx
