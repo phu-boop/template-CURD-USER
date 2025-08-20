@@ -37,6 +37,7 @@ public enum ErrorCode {
     DATA_ALREADY_EXISTS("5005", "Data already exists"),
     DATABASE_ERROR("5006", "Database error"),
     CONSTRAINT_VIOLATION("5007", "Database constraint violation"),
+    INVALID_PASSWORD("5008","Invalid password"),
 
     // ===== 6xxx - Business logic errors =====
     PAYMENT_FAILED("6001", "Payment failed"),

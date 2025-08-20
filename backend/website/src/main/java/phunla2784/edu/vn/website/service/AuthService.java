@@ -4,7 +4,12 @@ package phunla2784.edu.vn.website.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import phunla2784.edu.vn.website.dto.respond.LoginRespond;
+import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.entity.User;
+import phunla2784.edu.vn.website.exception.AppException;
+import phunla2784.edu.vn.website.exception.ErrorCode;
+import phunla2784.edu.vn.website.mapper.UserMapper;
 import phunla2784.edu.vn.website.repository.UserRepository;
 import phunla2784.edu.vn.website.security.JwtUtil;
 
@@ -17,13 +22,24 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public String login(String email, String password) {
+    @Autowired
+    UserMapper userMapper;
+    public LoginRespond login(String email, String password) {
         User user = userRepository.findByEmail(email);
-        System.out.println("Role"+user.getRole());
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        } else {
-            throw new RuntimeException("Invalid password");
+        String token;
+        if(user == null){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+        try{
+            token = jwtUtil.generateToken(user.getEmail(),user.getStringRole());
+        }catch(ArithmeticException e){
+            throw new RuntimeException(e);
+        }
+        UserRespond userRespond = userMapper.usertoUserRespond(user);
+        LoginRespond loginRespond = new LoginRespond(userRespond,token);
+        return loginRespond;
     }
 }

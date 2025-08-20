@@ -38,4 +38,7 @@ public class User {
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
+    public String getStringRole(){
+        return this.role.toString();
+    }
 }
