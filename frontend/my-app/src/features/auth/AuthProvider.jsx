@@ -3,19 +3,22 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [role, setRole] = useState(sessionStorage.getItem("role") || null);
+  const [roles, setRoles] = useState(
+    JSON.parse(sessionStorage.getItem("roles")) || [] // ✅ parse về mảng
+  );
   const [token, setToken] = useState(sessionStorage.getItem("token") || null);
   const [id_user, setIdUser] = useState(sessionStorage.getItem("id_user") || null);
   const [email, setEmail] = useState(sessionStorage.getItem("email") || null);
 
-  const login = (newToken, newRole, newId, email) => {
+  const login = (newToken, newRoles, newId, newEmail) => {
     sessionStorage.setItem("id_user", newId);
     sessionStorage.setItem("token", newToken);
-    sessionStorage.setItem("role", newRole);
-    sessionStorage.setItem("email", email);
-    setEmail(email);
+    sessionStorage.setItem("roles", JSON.stringify(newRoles));
+    sessionStorage.setItem("email", newEmail);
+
+    setEmail(newEmail);
     setToken(newToken);
-    setRole(newRole);
+    setRoles(newRoles);
     setIdUser(newId);
   };
 
@@ -23,19 +26,21 @@ export function AuthProvider({ children }) {
     sessionStorage.clear();
     setEmail(null);
     setToken(null);
-    setRole(null);
+    setRoles([]);
     setIdUser(null);
   };
 
   useEffect(() => {
     const storedToken = sessionStorage.getItem("token");
-    const storedRole = sessionStorage.getItem("role");
+    const storedRoles = sessionStorage.getItem("roles");
     if (storedToken) setToken(storedToken);
-    if (storedRole) setRole(storedRole);
+    if (storedRoles) setRoles(JSON.parse(storedRoles));
   }, []);
 
   return (
-    <AuthContext.Provider value={{ role, token, id_user, email, login, logout }}>
+    <AuthContext.Provider
+      value={{ roles, token, id_user, email, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

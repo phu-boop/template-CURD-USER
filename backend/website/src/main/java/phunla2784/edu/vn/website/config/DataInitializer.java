@@ -8,6 +8,8 @@ import phunla2784.edu.vn.website.entity.User;
 import phunla2784.edu.vn.website.enums.Role;
 import phunla2784.edu.vn.website.repository.UserRepository;
 
+import java.util.Set;
+
 @Component
 public class DataInitializer implements ApplicationRunner {
 
@@ -21,11 +23,11 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (userRepository.findByEmail("admin@example.com") == null) {
+        if (userRepository.findByEmail("admin@gmail.com") == null) {
             User admin = new User();
             admin.setEmail("admin@gmail.com");
             admin.setPassword(passwordEncoder.encode("123123123"));
-            admin.setRole(Role.Admin);
+            admin.setRoles(Set.of(Role.Admin));
             userRepository.save(admin);
         }
     }

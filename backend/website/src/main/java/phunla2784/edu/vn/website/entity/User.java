@@ -6,11 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import phunla2784.edu.vn.website.converter.RoleSetConverter;
 import phunla2784.edu.vn.website.enums.Gender;
 import phunla2784.edu.vn.website.enums.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Entity
@@ -24,8 +26,8 @@ public class User {
     @Column(nullable = false, unique = true)
     String email;
     String password;
-    @Enumerated(EnumType.STRING)
-    Role role;
+    @Convert(converter = RoleSetConverter.class)
+    private Set<Role> roles;
     String name;
     String fullName;
     String phone;
@@ -38,7 +40,7 @@ public class User {
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
-    public String getStringRole(){
-        return this.role.toString();
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

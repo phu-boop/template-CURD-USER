@@ -15,6 +15,8 @@ import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.mapper.UserMapper;
 import phunla2784.edu.vn.website.repository.UserRepository;
 
+import java.util.Set;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class UserService {
         }
         User user = userMapper.userRequesttoUser(userRequest);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRole(Role.User);
+        user.setRoles(Set.of(Role.User));
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
     }

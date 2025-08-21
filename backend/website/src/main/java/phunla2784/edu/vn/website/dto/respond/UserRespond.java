@@ -7,6 +7,7 @@ import phunla2784.edu.vn.website.enums.Gender;
 import phunla2784.edu.vn.website.enums.Role;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -22,5 +23,5 @@ public class UserRespond {
     String country;
     LocalDate birthday;
     Gender gender;
-    Role role;
+    Set<Role> roles;
 }

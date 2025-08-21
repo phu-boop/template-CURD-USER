@@ -4,6 +4,7 @@ package phunla2784.edu.vn.website.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import phunla2784.edu.vn.website.converter.RoleSetConverter;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.entity.User;
@@ -21,7 +22,8 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtil jwtUtil;
-
+    @Autowired
+    RoleSetConverter roleSetConverter;
     @Autowired
     UserMapper userMapper;
     public LoginRespond login(String email, String password) {
@@ -34,7 +36,7 @@ public class AuthService {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
         try{
-            token = jwtUtil.generateToken(user.getEmail(),user.getStringRole());
+            token = jwtUtil.generateToken(user.getEmail(),roleSetConverter.convertToDatabaseColumn(user.getRoles()));
         }catch(ArithmeticException e){
             throw new RuntimeException(e);
         }
