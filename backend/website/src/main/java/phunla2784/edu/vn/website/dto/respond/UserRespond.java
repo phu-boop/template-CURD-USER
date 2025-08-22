@@ -3,11 +3,12 @@ package phunla2784.edu.vn.website.dto.respond;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import phunla2784.edu.vn.website.entity.Role;
 import phunla2784.edu.vn.website.enums.Gender;
-import phunla2784.edu.vn.website.enums.Role;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor

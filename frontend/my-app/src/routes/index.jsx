@@ -26,16 +26,19 @@ export default function AppRoutes() {
                     <Route path="/test" element={<Test/>}/>
                 </Route>
 
-                {/* User layout */}
-                <Route element={<ProtectedRoute allowedRoles={["User"]}/>}>
+                {/* User routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]}/>}>
                     <Route path="/user" element={<UserLayout/>}>
+                        {/* Thêm các route user protected ở đây */}
+                        <Route path="profile" element={<div>User Profile</div>}/>
                     </Route>
                 </Route>
 
-                {/* Admin layout */}
-                <Route element={<ProtectedRoute allowedRoles={["Admin"]}/>}>
+                {/* Admin routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["ADMIN"]}/>}>
                     <Route path="/admin" element={<AdminLayout/>}>
                         <Route index element={<Dashboard/>}/>
+                        {/* Thêm các route admin khác ở đây */}
                     </Route>
                 </Route>
 

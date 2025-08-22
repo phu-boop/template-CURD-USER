@@ -1,65 +1,71 @@
-import {useState} from "react"
-import Button from "../components/Button.jsx"
-import Input from "../components/Input.jsx"
-import {loginUser} from "../services/auth/authService.js"
-import Alert from "../components/Alert.jsx"
-import Swal from "sweetalert2"
-import {useNavigate} from "react-router-dom"
-import {useAuthContext} from "../features/auth/AuthProvider"
+import {useState} from "react";
+import Button from "../components/Button.jsx";
+import Input from "../components/Input.jsx";
+import {loginUser} from "../services/auth/authService.js";
+import Alert from "../components/Alert.jsx";
+import Swal from "sweetalert2";
+import {useNavigate} from "react-router-dom";
+import {useAuthContext} from "../features/auth/AuthProvider";
 
 export default function Login() {
-    const navigate = useNavigate()
-    const {login} = useAuthContext()
-    const [form, setForm] = useState({email: "", password: ""})
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate();
+    const {login} = useAuthContext();
+    const [form, setForm] = useState({email: "", password: ""});
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
-        setForm({...form, [e.target.name]: e.target.value})
-    }
+        setForm({...form, [e.target.name]: e.target.value});
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setLoading(true)
-        setError(null)
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
 
         try {
-            const data = await loginUser(form)
-            const Respond = data.data
+            const response = await loginUser(form);
 
-            if (data.code === "1000") {
+            if (response.code === "1000") {
+                const userData = response.data.userRespond;
+                const token = response.data.token;
+
+                const rolesArray = userData.roles.map((role) => role.name);
+
                 login(
-                    Respond.token,
-                    Respond.userRespond.roles,
-                    Respond.userRespond.id,
-                    Respond.userRespond.email
-                )
+                    token,
+                    rolesArray,
+                    userData.id,
+                    userData.email,
+                    userData.name,
+                    userData.fullName,
+                    userData
+                );
 
                 Swal.fire({
                     title: "Chúc mừng!",
                     text: "Bạn đã đăng nhập thành công!",
                     icon: "success",
-                    confirmButtonText: "OK"
+                    confirmButtonText: "OK",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (Respond.userRespond.roles.includes("Admin")) {
-                            navigate("/admin")
+                        if (rolesArray.includes("ADMIN")) {
+                            navigate("/admin");
                         } else {
-                            navigate("/")
+                            navigate("/");
                         }
                     }
-                })
+                });
             } else {
-                setError(data.message)
+                setError(response.message || "Đăng nhập thất bại");
             }
-
         } catch (err) {
-            console.error(err)
-            setError(err.message || "Đăng nhập thất bại")
+            console.error(err);
+            setError(err.message || "Đăng nhập thất bại");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-slate-100">
@@ -74,6 +80,7 @@ export default function Login() {
                     placeholder="Email"
                     value={form.email}
                     onChange={handleChange}
+                    required
                 />
                 <Input
                     type="password"
@@ -81,11 +88,18 @@ export default function Login() {
                     placeholder="Mật khẩu"
                     value={form.password}
                     onChange={handleChange}
+                    required
                 />
                 {error && (
                     <Alert type="error" message={error} onClose={() => setError(null)}/>
                 )}
-                <Button variant="primary" size="sm" disabled={loading}>
+                <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    disabled={loading}
+                    className="w-full"
+                >
                     {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Button>
                 <p className="text-sm text-center text-slate-500">
@@ -96,5 +110,5 @@ export default function Login() {
                 </p>
             </form>
         </div>
-    )
+    );
 }

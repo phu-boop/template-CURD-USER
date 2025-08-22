@@ -8,15 +8,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
+import phunla2784.edu.vn.website.entity.Role;
 import phunla2784.edu.vn.website.entity.User;
-import phunla2784.edu.vn.website.enums.Role;
 import phunla2784.edu.vn.website.exception.AppException;
 import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.mapper.UserMapper;
+import phunla2784.edu.vn.website.repository.RoleRepository;
 import phunla2784.edu.vn.website.repository.UserRepository;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +30,23 @@ public class UserService {
 
     UserRepository userRepository;
 
+    RoleRepository roleRepository;
+
     public UserRespond createUser(UserRequest userRequest) {
-        if(userRepository.existsByEmail(userRequest.getEmail())){
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         } else if (userRepository.existsByPhone(userRequest.getPhone())) {
             throw new AppException(ErrorCode.PHONE_ALREADY_EXISTS);
         }
         User user = userMapper.userRequesttoUser(userRequest);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRoles(Set.of(Role.User));
+        Set<Role> roles = new HashSet<>();
+        Optional<Role> userRoleOptional = roleRepository.findByName("USER");
+        if (!userRoleOptional.isPresent()) {
+            throw new AppException(ErrorCode.DATABASE_ERROR);
+        }
+        roles.add(userRoleOptional.get());
+        user.setRoles(roles);
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
     }
