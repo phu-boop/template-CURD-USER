@@ -12,27 +12,38 @@ import Register from "../pages/Register.jsx";
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute";
-import Test from "../pages/Test.jsx";
+import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
 
 export default function AppRoutes() {
     return (
         <AuthProvider>
             <Routes>
+
+
                 {/* Public */}
-                <Route element={<UserLayout/>}>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                    <Route path="/test" element={<Test/>}/>
+                <Route path={"/"} element={<UserLayout/>}>
+                    <Route path="" element={<Home/>}/>
+                    <Route path="login" element={<Login/>}/>
+                    <Route path="register" element={<Register/>}/>
                 </Route>
 
+
                 {/* User routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["USER"]}/>}>
+                    <Route path="/learner" element={<UserLayout/>}>
+                        <Route path="home" element={<LearnerHome/>}/>
+                    </Route>
+                </Route>
+
+
+                {/* User-Admin routes - protected */}
                 <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]}/>}>
                     <Route path="/user" element={<UserLayout/>}>
                         {/* Thêm các route user protected ở đây */}
                         <Route path="profile" element={<div>User Profile</div>}/>
                     </Route>
                 </Route>
+
 
                 {/* Admin routes - protected */}
                 <Route element={<ProtectedRoute allowedRoles={["ADMIN"]}/>}>

@@ -17,7 +17,7 @@ export default function Home() {
                 <div className="flex gap-4">
                     <Button
                         onClick={() => {
-                            navigate('/login')
+                            navigate('/learner/home')
                         }}
                         className={"px-6 py-3 bg-sky-500 hover:bg-sky-400 rounded-lg text-white font-semibold transition"}
                     >

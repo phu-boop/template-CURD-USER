@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
-import {Navigate, Outlet} from "react-router-dom";
+import {Navigate, Outlet, useNavigate} from "react-router-dom";
 import {useAuthContext} from "../features/auth/AuthProvider.jsx";
 import Swal from "sweetalert2";
 
 export default function ProtectedRoute({allowedRoles}) {
+    const navigate = useNavigate();
     const {roles} = useAuthContext();
     const [alertShown, setAlertShown] = useState(false);
     const [redirect, setRedirect] = useState(null);
@@ -15,9 +16,15 @@ export default function ProtectedRoute({allowedRoles}) {
                     title: "Chưa đăng nhập",
                     text: "Vui lòng đăng nhập để tiếp tục!",
                     icon: "warning",
-                    confirmButtonText: "OK",
-                }).then(() => {
-                    setRedirect("/login");
+                    showCancelButton: true,
+                    confirmButtonText: "Đăng nhập",
+                    cancelButtonText: "Quay lại",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate("/login");
+                    }else if (result.isDenied === false) {
+                        window.history.back();
+                    }
                 });
                 setAlertShown(true);
             }
