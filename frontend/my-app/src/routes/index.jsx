@@ -13,6 +13,7 @@ import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
+import UserManagement from "../features/users/admin/pages/UserManagement.jsx";
 
 export default function AppRoutes() {
     return (
@@ -49,6 +50,7 @@ export default function AppRoutes() {
                 <Route element={<ProtectedRoute allowedRoles={["ADMIN"]}/>}>
                     <Route path="/admin" element={<AdminLayout/>}>
                         <Route index element={<Dashboard/>}/>
+                        <Route path="users" element={<UserManagement />}/>
                         {/* Thêm các route admin khác ở đây */}
                     </Route>
                 </Route>

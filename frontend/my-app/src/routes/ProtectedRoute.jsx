@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 export default function ProtectedRoute({allowedRoles}) {
     const navigate = useNavigate();
-    const {roles} = useAuthContext();
+        const {roles} = useAuthContext();
     const [alertShown, setAlertShown] = useState(false);
     const [redirect, setRedirect] = useState(null);
 
