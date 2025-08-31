@@ -11,7 +11,9 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null); // Thêm state cho user đang xem
   const [message, setMessage] = useState("");
+  const [mode, setMode] = useState(""); // 'add', 'edit', 'view'
 
   // Search/Filter/Sort
   const [searchText, setSearchText] = useState("");
@@ -23,7 +25,7 @@ export default function UserManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const showMessage = (msg ) => {
+  const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => setMessage(""), 3000);
   };
@@ -34,13 +36,13 @@ export default function UserManagement() {
       const response = await userApi.getAll();
       if (response.data.code === "1000") {
         setUsers(response.data.data);
-        showMessage("Tải danh sách user thành công", "success");
+        showMessage("Tải danh sách user thành công");
       } else {
-        showMessage("Lỗi khi tải danh sách user", "error");
+        showMessage("Lỗi khi tải danh sách user");
       }
     } catch (error) {
       console.error("Error fetching users:", error);
-      showMessage("Không thể tải danh sách user", "error");
+      showMessage("Không thể tải danh sách user");
     } finally {
       setLoading(false);
     }
@@ -52,46 +54,65 @@ export default function UserManagement() {
 
   const handleAddUser = () => {
     setEditingUser(null);
+    setViewingUser(null);
+    setMode("add");
     setModalOpen(true);
   };
 
   const handleEditUser = (user) => {
     setEditingUser(user);
+    setViewingUser(null);
+    setMode("edit");
     setModalOpen(true);
   };
 
   const handleViewUser = (user) => {
-    console.log("View user:", user);
-    showMessage(`Xem chi tiết user: ${user.fullName}`);
+    setViewingUser(user);
+    setEditingUser(null);
+    setMode("view");
+    setModalOpen(true);
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa user này?")) return;
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn?",
+      text: "Bạn sẽ không thể hoàn tác hành động này!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Có, xóa người dùng!",
+      cancelButtonText: "Hủy",
+    });
 
-    try {
-      await userApi.delete(userId);
-      showMessage("Xóa user thành công", "success");
-      fetchUsers();
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      showMessage("Không thể xóa user", "error");
+    if (result.isConfirmed) {
+      try {
+        await userApi.delete(userId);
+        Swal.fire("Đã xóa!", "Người dùng đã được xóa.", "success");
+        fetchUsers();
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        Swal.fire("Lỗi!", "Không thể xóa người dùng.", "error");
+      }
     }
   };
 
   const handleSubmitUser = async (userData) => {
     try {
-      if (editingUser) {
+      if (mode === "edit") {
         await userApi.update(editingUser.id, userData);
-        showMessage("Cập nhật user thành công", "success");
+        showMessage("Cập nhật user thành công");
       } else {
         await userApi.create(userData);
-        showMessage("Thêm user thành công", "success");
+        showMessage("Thêm user thành công");
       }
       setModalOpen(false);
       fetchUsers();
     } catch (error) {
       console.error("Error saving user:", error);
-      showMessage(editingUser ? "Không thể cập nhật user" : "Không thể thêm user", "error");
+      showMessage(
+        mode === "edit" ? "Không thể cập nhật user" : "Không thể thêm user"
+      );
     }
   };
 
@@ -104,8 +125,8 @@ export default function UserManagement() {
         user.name?.toLowerCase().includes(searchText.toLowerCase()) ||
         user.phone?.includes(searchText);
 
-      const roleMatch = !filterRole ||
-        user.roles.some(role => role.name === filterRole);
+      const roleMatch =
+        !filterRole || user.roles.some((role) => role.name === filterRole);
 
       return textMatch && roleMatch;
     })
@@ -184,7 +205,8 @@ export default function UserManagement() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmitUser}
-        initialData={editingUser}
+        initialData={editingUser || viewingUser}
+        mode={mode}
       />
     </div>
   );

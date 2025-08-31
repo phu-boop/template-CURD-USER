@@ -12,6 +12,7 @@ const UserLayout = () => {
                     <Link to="/" className="hover:text-blue-500">Home</Link>
                     <Link to="/login" className="hover:text-blue-500">Login</Link>
                     <Link to="/register" className="hover:text-blue-500">Register</Link>
+                    <Link to="/profile" className="hover:text-blue-500">Profile</Link>
                 </nav>
             </header>
 

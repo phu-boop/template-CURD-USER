@@ -14,6 +14,7 @@ import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
 import UserManagement from "../features/users/admin/pages/UserManagement.jsx";
+import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 
 export default function AppRoutes() {
     return (
@@ -31,7 +32,7 @@ export default function AppRoutes() {
 
                 {/* User routes - protected */}
                 <Route element={<ProtectedRoute allowedRoles={["USER"]}/>}>
-                    <Route path="/learner" element={<UserLayout/>}>
+                    <Route path="/user" element={<UserLayout/>}>
                         <Route path="home" element={<LearnerHome/>}/>
                     </Route>
                 </Route>
@@ -39,9 +40,9 @@ export default function AppRoutes() {
 
                 {/* User-Admin routes - protected */}
                 <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]}/>}>
-                    <Route path="/user" element={<UserLayout/>}>
+                    <Route path="/" element={<UserLayout/>}>
                         {/* Thêm các route user protected ở đây */}
-                        <Route path="profile" element={<div>User Profile</div>}/>
+                        <Route path="profile" element={<ProfilePage/>}/>
                     </Route>
                 </Route>
 
