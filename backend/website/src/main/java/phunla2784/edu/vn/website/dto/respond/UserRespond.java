@@ -1,6 +1,7 @@
 package phunla2784.edu.vn.website.dto.respond;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import phunla2784.edu.vn.website.entity.Role;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

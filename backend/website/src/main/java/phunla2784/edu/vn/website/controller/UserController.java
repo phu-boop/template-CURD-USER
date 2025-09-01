@@ -6,11 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -20,12 +23,33 @@ public class UserController {
 
     UserService userService;
 
-    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<ApiRespond<List<UserRespond>>> getAllUser() {
+        return ResponseEntity.ok(
+                ApiRespond.success("Get All User Successfully", userService.getAllUser())
+        );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiRespond<UserRespond>> getUserById(@PathVariable long id) {
+        return ResponseEntity.ok(ApiRespond.success("Get User Successfully", userService.getUserById(id)));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @GetMapping("/me")
+    public ResponseEntity<ApiRespond<UserRespond>> getMe() {
+        return ResponseEntity.ok(ApiRespond.success("Get Information Me Successfully", userService.getInforMe()));
+    }
+
+    @PostMapping("/register")
     public ResponseEntity<ApiRespond<UserRespond>> createUser(@Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiRespond.success("Create User Successfully", userService.createUser(userRequest)));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiRespond<UserRespond>> updateUser(
             @PathVariable Long id,
@@ -35,6 +59,7 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiRespond<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

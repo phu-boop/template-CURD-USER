@@ -24,17 +24,15 @@ public class AuthService {
     @Autowired
     UserMapper userMapper;
     public LoginRespond login(String email, String password) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         String token;
-        if(user == null){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
         try{
             token = jwtUtil.generateToken(user.getEmail(),user.getRoleToString());
-        }catch(ArithmeticException e){
+        }catch(Exception e){
             throw new RuntimeException(e);
         }
         UserRespond userRespond = userMapper.usertoUserRespond(user);
