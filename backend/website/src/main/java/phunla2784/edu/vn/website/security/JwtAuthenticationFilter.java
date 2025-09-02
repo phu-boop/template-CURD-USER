@@ -26,8 +26,14 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtil jwtUtil;
+
+    private final JwtUtil jwtUtil;
+    private final TokenBlacklistRedis tokenBlacklist;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistRedis tokenBlacklist) {
+        this.jwtUtil = jwtUtil;
+        this.tokenBlacklist = tokenBlacklist;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,6 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 email = jwtUtil.extractEmail(token);
+                if (tokenBlacklist.contains(token)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("{\"code\":\"4001\",\"message\":\"Token đã bị logout\"}");
+                    return;
+                }
             }
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtUtil.isTokenValid(token, email)) {
@@ -55,10 +66,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException ex) {
-            sendError(response, ErrorCode.TOKEN_EXPIRED);
+            sendError(response, ErrorCode.TOKEN_INVALID);
             return;
         } catch (JwtException ex) {
-            sendError(response, ErrorCode.TOKEN_INVALID);
+            sendError(response, ErrorCode.TOKEN_EXPIRED);
             return;
         }
         filterChain.doFilter(request, response);
