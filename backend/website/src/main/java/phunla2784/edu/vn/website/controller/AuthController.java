@@ -3,13 +3,11 @@ package phunla2784.edu.vn.website.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
-import phunla2784.edu.vn.website.security.JwtUtil;
-import phunla2784.edu.vn.website.security.TokenBlacklistRedis;
+import phunla2784.edu.vn.website.dto.respond.TokenPair;
 import phunla2784.edu.vn.website.service.AuthService;
 
 import java.util.Map;
@@ -17,14 +15,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    private AuthService authService;
-    private final JwtUtil jwtUtil;
-    private final TokenBlacklistRedis tokenBlacklist;
+    private final AuthService authService;
 
-    public AuthController(JwtUtil jwtUtil, TokenBlacklistRedis tokenBlacklist) {
-        this.jwtUtil = jwtUtil;
-        this.tokenBlacklist = tokenBlacklist;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
@@ -34,7 +28,7 @@ public class AuthController {
                 credentials.get("password")
         );
         // Gửi refresh token qua HttpOnly cookie
-        var cookie = new Cookie("refreshToken", authService.generaRefreshToken(loginRespond.getUserRespond().getEmail()));
+        var cookie = new Cookie("refreshToken", authService.generateRefreshToken(loginRespond.getUserRespond().getEmail()));
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/auth/refresh");
@@ -44,55 +38,30 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiRespond<?>> refreshToken(HttpServletRequest request) {
-        // Lấy refresh token từ cookie
-        String refreshToken = null;
-        if (request.getCookies() != null) {
-            for (Cookie c : request.getCookies()) {
-                if ("refreshToken".equals(c.getName())) {
-                    refreshToken = c.getValue();
-                    break;
-                }
-            }
-        }
-
-        if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiRespond("4001", "Refresh token không hợp lệ", null));
-        }
-        String newAccessToken = jwtUtil.generateAccessToken(jwtUtil.extractEmail(refreshToken),jwtUtil.extractRole(refreshToken));
-        String newRefreshToken = jwtUtil.generateRefreshToken(jwtUtil.extractEmail(refreshToken),jwtUtil.extractRole(refreshToken));
-
+    public ResponseEntity<ApiRespond<?>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        TokenPair tokenPair = authService.newRefreshTokenAndAccessToken(request);
         // Cập nhật lại cookie với refresh token mới
-        Cookie cookie = new Cookie("refreshToken", newRefreshToken);
+        Cookie cookie = new Cookie("refreshToken", tokenPair.getRefreshToken());
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(30 * 24 * 60 * 60); // 30 ngày
-        ((HttpServletResponse) request.getAttribute("response")).addCookie(cookie);
-
+        response.addCookie(cookie);
         return ResponseEntity.ok(
-                new ApiRespond("2000", "Refresh thành công",
-                        Map.of("accessToken", newAccessToken))
-        );
+                ApiRespond.success("RefreshToken successful", tokenPair));
     }
-
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiRespond> logout(HttpServletRequest request) {
-        String token = parseJwt(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            long expirationSeconds = jwtUtil.getRemainingSeconds(token);
-            tokenBlacklist.addToken(token, expirationSeconds);
-        }
-        return ResponseEntity.ok(new ApiRespond("2000", "Đã logout thành công", null));
-    }
+    public ResponseEntity<ApiRespond<?>> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.addTokenBlacklist(request);
+        // Xoá refresh token cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
 
-    private String parseJwt(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
-        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
-        }
-        return null;
+        return ResponseEntity.ok(ApiRespond.success("Logout successful", null));
     }
 }

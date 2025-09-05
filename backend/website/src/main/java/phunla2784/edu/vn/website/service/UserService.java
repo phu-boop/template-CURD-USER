@@ -1,12 +1,9 @@
 package phunla2784.edu.vn.website.service;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
@@ -20,37 +17,41 @@ import phunla2784.edu.vn.website.mapper.UserMapper;
 import phunla2784.edu.vn.website.repository.RoleRepository;
 import phunla2784.edu.vn.website.repository.UserRepository;
 
-import java.net.ContentHandler;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    UserMapper userMapper;
-
-    UserRepository userRepository;
-
-    RoleRepository roleRepository;
-
-    public List<UserRespond> getAllUser(){
-        List<UserRespond> listUserRespond = userRepository.findAll()
-        .stream()
-        .map(userMapper::usertoUserRespond)
-        .collect(Collectors.toList());
-        return listUserRespond;
+    public UserService(PasswordEncoder passwordEncoder,
+                       UserMapper userMapper,
+                       UserRepository userRepository,
+                       RoleRepository roleRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
-    public UserRespond getUserById(long id){
+    public List<UserRespond> getAllUser() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::usertoUserRespond)
+                .collect(Collectors.toList());
+    }
+
+    public UserRespond getUserById(long id) {
         User user = userRepository.findById(id)
-                      .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.usertoUserRespond(user);
     }
 
-    public UserRespond getInforMe(){
+    public UserRespond getInforMe() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
@@ -68,17 +69,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(RoleName.USER.getRoleName())
-                        .orElseThrow(() -> new AppException(ErrorCode.DATABASE_ERROR));
+                .orElseThrow(() -> new AppException(ErrorCode.DATABASE_ERROR));
         roles.add(userRole);
         user.setRoles(roles);
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
     }
-    public UserRespond updateUser(Long id,UserRequest userRequest) {
+
+    public UserRespond updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!user.getEmail().equals(userRequest.getEmail())
-        && userRepository.existsByEmail(userRequest.getEmail())) {
+                && userRepository.existsByEmail(userRequest.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         if (!user.getPhone().equals(userRequest.getPhone())
@@ -88,10 +90,12 @@ public class UserService {
         userMapper.updateUserFromRequest(userRequest, user);
         userRepository.save(user);
         return userMapper.usertoUserRespond(user);
-       }
+    }
+
     public void deleteUser(Long id) {
         userRepository.delete(getUserById(id));
     }
+
     private User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
