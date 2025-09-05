@@ -5,3 +5,6 @@ export const registerUser = (userData) =>
 
 export const loginUser = (credentials) =>
     apiConst.post("auth/login", credentials).then((res) => res.data);
+
+export const logout = () =>
+    apiConst.post("auth/logout").then((res) => res.data);

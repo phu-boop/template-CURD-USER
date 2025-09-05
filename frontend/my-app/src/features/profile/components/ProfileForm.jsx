@@ -39,14 +39,15 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const response = await userApi.getProfile(); // Sử dụng hàm từ service của bạn
+            const response = await userApi.getProfile();
             if (response.data.code === "1000") {
                 setFormData(response.data.data);
             } else {
                 setMessage('Lỗi khi tải thông tin');
             }
         } catch (error) {
-            setMessage('Lỗi khi tải thông tin: ' + (error.message || 'Vui lòng thử lại'));
+            console.log(error);
+            setMessage('Lỗi khi tải thông tin: ' + (error.response.data.message || 'Vui lòng thử lại'));
         } finally {
             setLoading(false);
         }

@@ -61,7 +61,7 @@ export default function Login() {
             }
         } catch (err) {
             console.error(err);
-            setError(err.message || "Đăng nhập thất bại");
+            setError(err.response.data.message || "Đăng nhập thất bại");
         } finally {
             setLoading(false);
         }

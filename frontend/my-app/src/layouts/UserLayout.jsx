@@ -1,6 +1,16 @@
 import {Outlet, Link} from "react-router-dom";
-
+import Button from "../components/Button.jsx";
+import {useAuthContext} from "../features/auth/AuthProvider.jsx";
+import {logout as ApiLogout} from "../services/auth/authService.js"
 const UserLayout = () => {
+    const {logout} = useAuthContext();
+    const handelOnclickLogout = async () => {
+        const respond = await ApiLogout();
+        console.log(respond);
+        if (respond) {
+            logout();
+        }
+    }
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
@@ -13,6 +23,7 @@ const UserLayout = () => {
                     <Link to="/login" className="hover:text-blue-500">Login</Link>
                     <Link to="/register" className="hover:text-blue-500">Register</Link>
                     <Link to="/profile" className="hover:text-blue-500">Profile</Link>
+                    <Button onClick={handelOnclickLogout} className="hover:text-blue-500">Logout</Button>
                 </nav>
             </header>
 
