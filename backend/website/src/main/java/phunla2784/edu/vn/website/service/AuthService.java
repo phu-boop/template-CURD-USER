@@ -21,25 +21,24 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtil jwtUtil;
-
     @Autowired
     UserMapper userMapper;
+
     public LoginRespond login(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        String token;
-        if(user == null){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            String token = jwtUtil.generateAccessToken(user.getEmail(), user.getRoleToString());
+            UserRespond userRespond = userMapper.usertoUserRespond(user);
+            LoginRespond loginRespond = new LoginRespond(userRespond, token);
+            return loginRespond;
+        } else {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
-        try{
-            token = jwtUtil.generateToken(user.getEmail(),user.getStringRole());
-        }catch(ArithmeticException e){
-            throw new RuntimeException(e);
-        }
-        UserRespond userRespond = userMapper.usertoUserRespond(user);
-        LoginRespond loginRespond = new LoginRespond(userRespond,token);
-        return loginRespond;
+    }
+    public String generaRefreshToken(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return jwtUtil.generateRefreshToken(user.getEmail(), user.getRoleToString());
     }
 }

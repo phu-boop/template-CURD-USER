@@ -1,11 +1,10 @@
 package phunla2784.edu.vn.website.dto.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import phunla2784.edu.vn.website.enums.Gender;
-import phunla2784.edu.vn.website.enums.Role;
+import phunla2784.edu.vn.website.validation.annotation.MinAge;
+import phunla2784.edu.vn.website.validation.annotation.PasswordConstraint;
 
 import java.time.LocalDate;
 
@@ -15,16 +14,28 @@ public class UserRequest {
     @Email(message = "INVALID_EMAIL_FORMAT")
     String email;
     @NotBlank(message = "MISSING_REQUIRED_FIELD")
-    @Size(min=8, message = "PASSWORD_TOO_SHORT")
+    @PasswordConstraint(
+        minLength = 8,
+        hasUppercase = true,
+        hasLowercase = true,
+        hasNumber = true,
+        hasSpecialChar = true,
+        message = "PASSWORD_INVALID_FORMAT"
+    )
     String password;
     @NotBlank(message = "MISSING_REQUIRED_FIELD")
     String name;
     String fullName;
+    @NotNull(message = "PHONE_INVALID_FORMAT")
+    @Pattern(
+        regexp = "^[0-9]{10,12}$",
+        message = "PHONE_INVALID_FORMAT"
+    )
     String phone;
     String address;
+    @MinAge(value = 18, message = "AGE_TOO_YOUNG")
     LocalDate birthday;
     String city;
     String country;
     Gender gender;
-    Role role;
 }

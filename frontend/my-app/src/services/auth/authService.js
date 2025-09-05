@@ -1,7 +1,10 @@
-import apiClient from "../apiClient.js";
+import apiConst from "../apiConst.js";
 
 export const registerUser = (userData) =>
-  apiClient.post("users", userData).then((res) => res.data);
+    apiConst.post("users/register", userData).then((res) => res.data);
 
 export const loginUser = (credentials) =>
-  apiClient.post("auth/login", credentials).then((res) => res.data);
+    apiConst.post("auth/login", credentials).then((res) => res.data);
+
+export const logout = () =>
+    apiConst.post("auth/logout").then((res) => res.data);

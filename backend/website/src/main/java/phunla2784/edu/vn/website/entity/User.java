@@ -7,10 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import phunla2784.edu.vn.website.enums.Gender;
-import phunla2784.edu.vn.website.enums.Role;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -24,8 +24,13 @@ public class User {
     @Column(nullable = false, unique = true)
     String email;
     String password;
-    @Enumerated(EnumType.STRING)
-    Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name="role_id")
+    )
+    Set<Role> roles;
     String name;
     String fullName;
     String phone;
@@ -38,7 +43,13 @@ public class User {
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
-    public String getStringRole(){
-        return this.role.toString();
+
+    public String getRoleToString(){
+        if(this.roles == null || this.roles.isEmpty()){
+            return "";
+        }
+        return  this.roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.joining());
     }
 }

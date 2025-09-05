@@ -12,31 +12,47 @@ import Register from "../pages/Register.jsx";
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute";
-import Test from "../pages/Test.jsx";
+import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
+import UserManagement from "../features/users/admin/pages/UserManagement.jsx";
+import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 
 export default function AppRoutes() {
     return (
         <AuthProvider>
             <Routes>
+
+
                 {/* Public */}
-                <Route element={<UserLayout/>}>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                    <Route path="/test" element={<Test/>}/>
+                <Route path={"/"} element={<UserLayout/>}>
+                    <Route path="" element={<Home/>}/>
+                    <Route path="login" element={<Login/>}/>
+                    <Route path="register" element={<Register/>}/>
                 </Route>
 
-                {/* User layout */}
-                <Route element={<ProtectedRoute allowedRoles={["User"]}/>}>
+
+                {/* User routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["USER"]}/>}>
                     <Route path="/user" element={<UserLayout/>}>
+                        <Route path="home" element={<LearnerHome/>}/>
                     </Route>
                 </Route>
 
-                {/* Admin layout */}
-                <Route element={<ProtectedRoute allowedRoles={["Admin"]}/>}>
+
+                {/* User-Admin routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["USER", "ADMIN"]}/>}>
+                    <Route path="/" element={<UserLayout/>}>
+                        {/* Thêm các route user protected ở đây */}
+                        <Route path="profile" element={<ProfilePage/>}/>
+                    </Route>
+                </Route>
+
+
+                {/* Admin routes - protected */}
+                <Route element={<ProtectedRoute allowedRoles={["ADMIN"]}/>}>
                     <Route path="/admin" element={<AdminLayout/>}>
                         <Route index element={<Dashboard/>}/>
+                        <Route path="users" element={<UserManagement />}/>
+                        {/* Thêm các route admin khác ở đây */}
                     </Route>
                 </Route>
 

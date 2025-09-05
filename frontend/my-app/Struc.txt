@@ -64,3 +64,35 @@ src/
 │
 │── App.jsx
 │── main.jsx
+
+
+
+
+src/
+│── features/
+│   ├── auth/                    (Đã có)
+│   ├── dashboard/               (Đã có)
+│   ├── product/                 (Đã có)
+│   ├── users/                   ← THÊM MỚI - Quản lý users
+│   │   ├── admin/               ← Dành cho admin
+│   │   │   ├── components/
+│   │   │   │   ├── UserList.jsx
+│   │   │   │   ├── UserForm.jsx
+│   │   │   │   ├── UserTable.jsx
+│   │   │   │   └── UserFilters.jsx
+│   │   │   ├── pages/
+│   │   │   │   ├── UserManagement.jsx     ← Trang chính
+│   │   │   │   ├── UserCreate.jsx
+│   │   │   │   ├── UserEdit.jsx
+│   │   │   │   └── UserDetail.jsx
+│   │   │   └── hooks/
+│   │   │       └── useUserManagement.js
+│   │   ├── user/                ← Dành cho user thường (nếu cần)
+│   │   │   ├── components/
+│   │   │   └── pages/
+│   │   ├── hooks/
+│   │   │   └── useUsers.js      ← Hook chung cho users
+│   │   ├── services/
+│   │   │   └── userService.js   ← API calls cho users
+│   │   └── userSlice.js         ← Redux slice cho users
+│   └── ...
