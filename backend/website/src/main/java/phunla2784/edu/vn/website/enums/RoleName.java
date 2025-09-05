@@ -1,5 +1,8 @@
 package phunla2784.edu.vn.website.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum RoleName {
     USER("USER"),
     ADMIN("ADMIN"),

@@ -33,7 +33,8 @@ public enum ErrorCode {
     TOKEN_EXPIRED("4003", "Token expired", HttpStatus.UNAUTHORIZED),
     TOKEN_INVALID("4004", "Invalid token", HttpStatus.UNAUTHORIZED),
     ACCOUNT_LOCKED("4005", "Account is locked", HttpStatus.FORBIDDEN),
-
+    TOKEN_LOGGED_OUT("4006", "Token logged out", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("4007","Invalid refresh token",HttpStatus.UNAUTHORIZED),
     // ===== 5xxx - Data & DB errors =====
     USER_NOT_FOUND("5001", "User not found", HttpStatus.NOT_FOUND),
     EMAIL_ALREADY_EXISTS("5002", "Email already exists", HttpStatus.CONFLICT),
@@ -42,7 +43,7 @@ public enum ErrorCode {
     DATA_ALREADY_EXISTS("5005", "Data already exists", HttpStatus.CONFLICT),
     DATABASE_ERROR("5006", "Database error", HttpStatus.INTERNAL_SERVER_ERROR),
     CONSTRAINT_VIOLATION("5007", "Database constraint violation", HttpStatus.BAD_REQUEST),
-    INVALID_PASSWORD("5008","Invalid password", HttpStatus.UNAUTHORIZED),
+    INVALID_PASSWORD("5008", "Invalid password", HttpStatus.UNAUTHORIZED),
 
     // ===== 6xxx - Business logic errors =====
     PAYMENT_FAILED("6001", "Payment failed", HttpStatus.BAD_REQUEST),

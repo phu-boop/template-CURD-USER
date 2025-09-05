@@ -16,7 +16,6 @@ import phunla2784.edu.vn.website.repository.RoleRepository;
 import phunla2784.edu.vn.website.repository.UserRepository;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -37,7 +36,7 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
-            if(roleRepository.findByName(RoleName.ADMIN.getRoleName()).isEmpty()){
+            if (roleRepository.findByName(RoleName.ADMIN.getRoleName()).isEmpty()) {
                 Set<Permission> permissions = new HashSet<>();
                 Permission permission = new Permission();
                 permission.setName(PermissionName.DELETE.getPermissionName());
@@ -48,7 +47,7 @@ public class DataInitializer implements ApplicationRunner {
                 role.setPermissions(permissions);
                 roleRepository.save(role);
             }
-            if(roleRepository.findByName(RoleName.USER.getRoleName()).isEmpty()){
+            if (roleRepository.findByName(RoleName.USER.getRoleName()).isEmpty()) {
                 Set<Permission> permissions = new HashSet<>();
                 Permission permission = new Permission();
                 permission.setName(PermissionName.READ.getPermissionName());

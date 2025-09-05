@@ -15,12 +15,12 @@ public class UserRequest {
     String email;
     @NotBlank(message = "MISSING_REQUIRED_FIELD")
     @PasswordConstraint(
-        minLength = 8,
-        hasUppercase = true,
-        hasLowercase = true,
-        hasNumber = true,
-        hasSpecialChar = true,
-        message = "PASSWORD_INVALID_FORMAT"
+            minLength = 8,
+            hasUppercase = true,
+            hasLowercase = true,
+            hasNumber = true,
+            hasSpecialChar = true,
+            message = "PASSWORD_INVALID_FORMAT"
     )
     String password;
     @NotBlank(message = "MISSING_REQUIRED_FIELD")
@@ -28,8 +28,8 @@ public class UserRequest {
     String fullName;
     @NotNull(message = "PHONE_INVALID_FORMAT")
     @Pattern(
-        regexp = "^[0-9]{10,12}$",
-        message = "PHONE_INVALID_FORMAT"
+            regexp = "^[0-9]{10,12}$",
+            message = "PHONE_INVALID_FORMAT"
     )
     String phone;
     String address;
