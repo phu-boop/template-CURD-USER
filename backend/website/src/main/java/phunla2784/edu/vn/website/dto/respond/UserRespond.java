@@ -1,5 +1,6 @@
 package phunla2784.edu.vn.website.dto.respond;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class UserRespond {
     String address;
     String city;
     String country;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     LocalDate birthday;
     Gender gender;
     Set<Role> roles;

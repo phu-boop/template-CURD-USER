@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import phunla2784.edu.vn.website.security.JwtAuthenticationFilter;
+import phunla2784.edu.vn.website.security.OAuth2LoginSuccessHandler;
 
 import java.util.List;
 
@@ -25,9 +26,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     @Bean
@@ -37,11 +39,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/error","/auth/**", "/oauth2/**", "/auth/oauth2/success").permitAll()
                         .requestMatchers("/auth/**", "/users/**").permitAll()
                         .requestMatchers("/auth/admin/**").hasRole("ADMIN")
                         .requestMatchers("/chua/").hasRole("USER")
                         .requestMatchers("/auth/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/auth/oauth2/success").authenticated()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler((req, res, e) -> {
                     throw e;
