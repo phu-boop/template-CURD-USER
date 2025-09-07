@@ -43,6 +43,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         this.userMapper = userMapper;
     }
 
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -72,23 +73,26 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtUtil.generateRefreshToken(email, roles.toString());
 
 
-    // ✅ Set refresh token trong cookie HttpOnly
-    Cookie cookie = new Cookie("refreshToken", refreshToken);
-    cookie.setHttpOnly(true);   // chặn JS đọc
-    cookie.setSecure(false);    // nếu chạy local dev thì để false, deploy HTTPS thì true
-    cookie.setPath("/auth/refresh"); // chỉ gửi cookie khi gọi API refresh
-    cookie.setMaxAge(30 * 24 * 60 * 60); // 30 ngày
-    response.addCookie(cookie);
+        // ✅ Set refresh token trong cookie HttpOnly
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);   // chặn JS đọc
+        cookie.setSecure(false);    // nếu chạy local dev thì để false, deploy HTTPS thì true
+        cookie.setPath("/auth/refresh"); // chỉ gửi cookie khi gọi API refresh
+        cookie.setMaxAge(30 * 24 * 60 * 60); // 30 ngày
+        response.addCookie(cookie);
 
         UserRespond userRespond = userMapper.usertoUserRespond(user);
-    LoginRespond loginRespond = new LoginRespond(userRespond,accessToken);
+        userRespond.setBirthday(null);
+        LoginRespond loginRespond = new LoginRespond(userRespond, accessToken);
 
-    ApiRespond<Object> apiResponse = ApiRespond.success("Login with Google success", loginRespond);
+        ApiRespond<Object> apiResponse = ApiRespond.success("Login with Google success", loginRespond);
 
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-    response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
-    response.getWriter().flush();
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+//        response.getWriter().flush();
+        response.sendRedirect("http://localhost:5173/oauth-success?accessToken=" + accessToken);
+
 
     }
 }

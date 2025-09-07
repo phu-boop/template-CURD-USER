@@ -37,6 +37,12 @@ public class AuthController {
         return ResponseEntity.ok(ApiRespond.success("Login successful", loginRespond));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ApiRespond<LoginRespond>> getCurrentUser() {
+        LoginRespond loginRespond = authService.getCurrentUser();
+        return ResponseEntity.ok(ApiRespond.success("Get current user successful", loginRespond));
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<ApiRespond<?>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         TokenPair tokenPair = authService.newRefreshTokenAndAccessToken(request);

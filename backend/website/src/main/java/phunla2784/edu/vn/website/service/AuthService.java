@@ -3,6 +3,8 @@ package phunla2784.edu.vn.website.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
@@ -48,6 +50,19 @@ public class AuthService {
         } else {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
+    }
+
+      public LoginRespond getCurrentUser() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        UserRespond userRespond = userMapper.usertoUserRespond(user);
+
+        userRespond.setBirthday(null);
+
+        return new LoginRespond(userRespond, null);
     }
 
     public String generateRefreshToken(String email) {

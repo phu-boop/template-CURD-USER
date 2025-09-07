@@ -15,6 +15,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
 import UserManagement from "../features/users/admin/pages/UserManagement.jsx";
 import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
+import OAuthSuccess from "../pages/OAuthSuccess";
 
 export default function AppRoutes() {
     return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
                     <Route path="" element={<Home/>}/>
                     <Route path="login" element={<Login/>}/>
                     <Route path="register" element={<Register/>}/>
+                    <Route path="oauth-success" element={<OAuthSuccess/>}/>
                 </Route>
 
 

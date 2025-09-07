@@ -84,7 +84,7 @@ export default function Login() {
 
         switch (provider) {
             case 'google':
-                authUrl = `http://localhost:8080/oauth2/authorization/google`;
+                authUrl = `http://localhost:8080/oauth2/authorization/google?redirect_uri=${encodedRedirectUrl}`;
                 break;
             case 'facebook':
                 authUrl = `http://api.yourdomain.com/auth/facebook?redirect_uri=${encodedRedirectUrl}`;
@@ -97,7 +97,6 @@ export default function Login() {
                 return;
         }
 
-        // Chuyển hướng đến endpoint xác thực
         window.location.href = authUrl;
     };
 

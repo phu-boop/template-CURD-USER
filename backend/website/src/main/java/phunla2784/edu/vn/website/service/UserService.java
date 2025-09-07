@@ -51,14 +51,6 @@ public class UserService {
         return userMapper.usertoUserRespond(user);
     }
 
-    public UserRespond getInforMe() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.usertoUserRespond(user);
-    }
-
     public UserRespond createUser(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);

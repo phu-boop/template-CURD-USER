@@ -27,6 +27,7 @@ import java.util.List;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
     SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
@@ -39,7 +40,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error","/auth/**", "/oauth2/**", "/auth/oauth2/success").permitAll()
+                        .requestMatchers("/", "/error", "/auth/**", "/oauth2/**", "/auth/oauth2/success").permitAll()
+                        .requestMatchers("/login/oauth2/code/google").permitAll()
                         .requestMatchers("/auth/**", "/users/**").permitAll()
                         .requestMatchers("/auth/admin/**").hasRole("ADMIN")
                         .requestMatchers("/chua/").hasRole("USER")
@@ -47,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/oauth2/success").authenticated()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
+                .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler((req, res, e) -> {
