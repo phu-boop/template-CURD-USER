@@ -1,10 +1,10 @@
 package phunla2784.edu.vn.website.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,11 +20,9 @@ import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.mapper.UserMapper;
 import phunla2784.edu.vn.website.repository.RoleRepository;
 import phunla2784.edu.vn.website.repository.UserRepository;
-import phunla2784.edu.vn.website.service.UserService;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -34,13 +32,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final String urlFrontend;
 
 
-    OAuth2LoginSuccessHandler(JwtUtil jwtUtil, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
+    OAuth2LoginSuccessHandler(JwtUtil jwtUtil, UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, @Value("${frontend.url}") String urlFrontend) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+        this.urlFrontend = urlFrontend;
     }
 
 
@@ -73,7 +73,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = jwtUtil.generateRefreshToken(email, roles.toString());
 
 
-        // ✅ Set refresh token trong cookie HttpOnly
+        // Set refresh token trong cookie HttpOnly
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
@@ -82,13 +82,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(cookie);
 
         UserRespond userRespond = userMapper.usertoUserRespond(user);
-        userRespond.setBirthday(null);
         LoginRespond loginRespond = new LoginRespond(userRespond, accessToken);
 
         ApiRespond<Object> apiResponse = ApiRespond.success("Login with Google success", loginRespond);
 
-        response.sendRedirect("http://localhost:5173/oauth-success?accessToken=" + accessToken);
-
+        response.sendRedirect(urlFrontend + "/oauth-success?accessToken=" + accessToken);
 
     }
 }

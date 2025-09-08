@@ -70,35 +70,35 @@ export default function Login() {
     };
 
 // Hàm xử lý đăng nhập bằng mạng xã hội
-    const handleSocialLogin = (provider) => {
-        // Tạo URL redirect sau khi đăng nhập thành công (tuỳ thuộc vào role)
-        const redirectUrl = window.location.origin + (
-            localStorage.getItem('userRole') === 'ADMIN' ? '/admin' : '/'
-        );
+        const handleSocialLogin = (provider) => {
+            // Tạo URL redirect sau khi đăng nhập thành công (tuỳ thuộc vào role)
+            // const redirectUrl = window.location.origin + (
+            //     localStorage.getItem('userRole') === 'ADMIN' ? '/admin' : '/'
+            // );
+            //
+            // // Mã hoá redirect URL để truyền như tham số
+            // const encodedRedirectUrl = encodeURIComponent(redirectUrl);
 
-        // Mã hoá redirect URL để truyền như tham số
-        const encodedRedirectUrl = encodeURIComponent(redirectUrl);
+            // Tuỳ thuộc vào provider mà có endpoint khác nhau
+            let authUrl = '';
 
-        // Tuỳ thuộc vào provider mà có endpoint khác nhau
-        let authUrl = '';
+            switch (provider) {
+                case 'google':
+                    authUrl = `http://localhost:8080/oauth2/authorization/google`;
+                    break;
+                case 'facebook':
+                    authUrl = `http://localhost:8080/oauth2/authorization/facebook`;
+                    break;
+                case 'github':
+                    authUrl = `http://localhost:8080/oauth2/authorization/github`;
+                    break;
+                default:
+                    console.error('Provider không được hỗ trợ');
+                    return;
+            }
 
-        switch (provider) {
-            case 'google':
-                authUrl = `http://localhost:8080/oauth2/authorization/google?redirect_uri=${encodedRedirectUrl}`;
-                break;
-            case 'facebook':
-                authUrl = `http://api.yourdomain.com/auth/facebook?redirect_uri=${encodedRedirectUrl}`;
-                break;
-            case 'apple':
-                authUrl = `http://api.yourdomain.com/auth/apple?redirect_uri=${encodedRedirectUrl}`;
-                break;
-            default:
-                console.error('Provider không được hỗ trợ');
-                return;
-        }
-
-        window.location.href = authUrl;
-    };
+            window.location.href = authUrl;
+        };
 
 
     return (
@@ -172,7 +172,7 @@ export default function Login() {
                     {/* Nút Apple */}
                     <button
                         type="button"
-                        onClick={() => handleSocialLogin('apple')}
+                        onClick={() => handleSocialLogin('github')}
                         className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
                     >
                         <FaApple className="h-5 w-5 text-gray-900"/>

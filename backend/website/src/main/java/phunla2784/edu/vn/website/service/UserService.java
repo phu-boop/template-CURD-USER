@@ -2,8 +2,6 @@ package phunla2784.edu.vn.website.service;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
