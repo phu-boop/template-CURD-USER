@@ -8,3 +8,6 @@ export const loginUser = (credentials) =>
 
 export const logout = () =>
     apiConst.post("auth/logout").then((res) => res.data);
+
+export const getInforMe = () =>
+    apiConst.get("auth/me").then((res) => res.data);

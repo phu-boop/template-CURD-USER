@@ -60,7 +60,6 @@ public class AuthService {
 
         UserRespond userRespond = userMapper.usertoUserRespond(user);
 
-        userRespond.setBirthday(null);
 
         return new LoginRespond(userRespond, null);
     }
@@ -91,23 +90,25 @@ public class AuthService {
         return new TokenPair(newAccessToken, newRefreshToken);
     }
 
-    public void addTokenBlacklist(HttpServletRequest request) {
-        String token = parseJwt(request);
-        String tokenRefresh = getRefreshTokenFromRequest(request);
-        if (token == null || tokenRefresh == null) {
-            throw new AppException(ErrorCode.TOKEN_INVALID);
+        public void addTokenBlacklist(HttpServletRequest request) {
+            String token = parseJwt(request);
+            String tokenRefresh = getRefreshTokenFromRequest(request);
+            System.out.println(tokenRefresh);
+            System.out.println(token);
+            if (token == null || tokenRefresh == null) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+
+            if (!jwtUtil.validateToken(token) || !jwtUtil.validateToken(tokenRefresh)) {
+                throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            }
+
+            long expirationSeconds_refresh = jwtUtil.getRemainingSeconds(tokenRefresh);
+            long expirationSeconds_access = jwtUtil.getRemainingSeconds(token);
+            tokenBlacklist.addToken(tokenRefresh, expirationSeconds_refresh);
+            tokenBlacklist.addToken(token, expirationSeconds_access);
+
         }
-
-        if (!jwtUtil.validateToken(token) || !jwtUtil.validateToken(tokenRefresh)) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
-        }
-
-        long expirationSeconds_refresh = jwtUtil.getRemainingSeconds(tokenRefresh);
-        long expirationSeconds_access = jwtUtil.getRemainingSeconds(token);
-        tokenBlacklist.addToken(tokenRefresh, expirationSeconds_refresh);
-        tokenBlacklist.addToken(token, expirationSeconds_access);
-
-    }
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");

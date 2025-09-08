@@ -1,40 +1,95 @@
 // /oauth-success.jsx
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {useEffect, useRef} from "react";
+import {useNavigate} from "react-router-dom";
+import {useAuthContext} from "../features/auth/AuthProvider";
+import {getInforMe} from "../services/auth/authService.js";
+import Swal from "sweetalert2";
 
 export default function OAuthSuccess() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const {login} = useAuthContext();
+    const firstRun = useRef(true);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("accessToken");
+    useEffect(() => {
+        if (!firstRun.current) return;
+        firstRun.current = false;
+        const processOAuth = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const accessToken = params.get("accessToken");
 
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
+            if (accessToken) {
+                sessionStorage.setItem("token", accessToken);
 
-      // gọi API lấy user info
-      fetch("http://localhost:8080/auth/me", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        credentials: "include", // để gửi cookie refreshToken
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("Unauthorized");
-          return res.json();
-        })
-        .then(data => {
-          localStorage.setItem("user", JSON.stringify(data));
-          console.log(data);
-        })
-        .catch(err => {
-          console.error("Error fetching user:", err);
-          navigate("/login");
-        });
-    } else {
-      navigate("/login");
-    }
-  }, [navigate]);
+                try {
+                    // Hiển thị thông báo đang xử lý
+                    Swal.fire({
+                        title: 'Đang xác thực...',
+                        text: 'Vui lòng chờ trong giây lát',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-  return <p>Đang đăng nhập...</p>;
+                    const respond = await getInforMe();
+                    const userData = respond.data.userRespond;
+
+                    login(
+                        accessToken,
+                        userData.roles.map((role) => role.name),
+                        userData.id,
+                        userData.email,
+                        userData.name,
+                        userData.fullName,
+                        userData
+                    );
+
+                    await Swal.fire({
+                        title: 'Thành công!',
+                        text: 'Đăng nhập thành công',
+                        icon: 'success',
+                        showConfirmButton: true, // hiển thị nút OK
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            navigate('/', {replace: true});
+                        }
+                    });
+
+                } catch (err) {
+                    console.log(err);
+
+                    // Thông báo lỗi
+                    await Swal.fire({
+                        title: 'Lỗi!',
+                        text: 'Đã xảy ra lỗi trong quá trình đăng nhập',
+                        icon: 'error',
+                        confirmButtonText: 'Thử lại',
+                        confirmButtonColor: '#3b82f6'
+                    });
+
+                    navigate('/login', {replace: true});
+                }
+            } else {
+                // Thông báo không có token
+                await Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không nhận được thông tin xác thực',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3b82f6'
+                });
+
+                navigate('/login', {replace: true});
+            }
+        };
+
+        processOAuth();
+    }, []);
+
+    return (
+        <div>
+
+        </div>
+    );
 }

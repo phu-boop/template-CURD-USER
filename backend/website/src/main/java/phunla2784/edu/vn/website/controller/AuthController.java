@@ -31,7 +31,7 @@ public class AuthController {
         var cookie = new Cookie("refreshToken", authService.generateRefreshToken(loginRespond.getUserRespond().getEmail()));
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setPath("/auth/refresh");
+        cookie.setPath("/");
         cookie.setMaxAge(30 * 24 * 60 * 60); // 30 ngày
         response.addCookie(cookie);
         return ResponseEntity.ok(ApiRespond.success("Login successful", loginRespond));
@@ -50,7 +50,7 @@ public class AuthController {
         Cookie cookie = new Cookie("refreshToken", tokenPair.getRefreshToken());
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setPath("/auth/refresh");
+        cookie.setPath("/");
         cookie.setMaxAge(30 * 24 * 60 * 60); // 30 ngày
         response.addCookie(cookie);
         return ResponseEntity.ok(

@@ -61,10 +61,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException ex) {
-            sendError(response, ErrorCode.TOKEN_INVALID);
+            sendError(response, ErrorCode.TOKEN_EXPIRED);
             return;
         } catch (JwtException ex) {
-            sendError(response, ErrorCode.TOKEN_EXPIRED);
+            sendError(response, ErrorCode.TOKEN_INVALID);
             return;
         }
         filterChain.doFilter(request, response);

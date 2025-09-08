@@ -6,7 +6,7 @@ export const userApi = {
     create: (userData) => apiConst.post('/users/register', userData),
     update: (id, userData) => apiConst.put(`/users/${id}`, userData),
     delete: (id) => apiConst.delete(`/users/${id}`),
-    getProfile: () => apiConst.get(`users/me`)
+    getProfile: () => apiConst.get(`auth/me`)
 };
 
 export default userApi;
