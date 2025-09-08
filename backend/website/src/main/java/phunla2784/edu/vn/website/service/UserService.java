@@ -2,8 +2,6 @@ package phunla2784.edu.vn.website.service;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
@@ -47,14 +45,6 @@ public class UserService {
 
     public UserRespond getUserById(long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.usertoUserRespond(user);
-    }
-
-    public UserRespond getInforMe() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.usertoUserRespond(user);
     }

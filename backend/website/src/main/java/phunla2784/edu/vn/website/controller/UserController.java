@@ -39,13 +39,6 @@ public class UserController {
         return ResponseEntity.ok(ApiRespond.success("Get User Successfully", userService.getUserById(id)));
     }
 
-    //find this me
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    @GetMapping("/me")
-    public ResponseEntity<ApiRespond<UserRespond>> getMe() {
-        return ResponseEntity.ok(ApiRespond.success("Get Information Me Successfully", userService.getInforMe()));
-    }
-
     @PostMapping("/register")
     public ResponseEntity<ApiRespond<UserRespond>> createUser(@Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)

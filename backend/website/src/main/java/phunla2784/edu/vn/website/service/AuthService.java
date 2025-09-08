@@ -1,8 +1,8 @@
-// src/main/java/phunla2784/edu/vn/website/service/AuthService.java
 package phunla2784.edu.vn.website.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
@@ -50,6 +50,18 @@ public class AuthService {
         }
     }
 
+      public LoginRespond getCurrentUser() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        UserRespond userRespond = userMapper.usertoUserRespond(user);
+
+
+        return new LoginRespond(userRespond, null);
+    }
+
     public String generateRefreshToken(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -76,23 +88,25 @@ public class AuthService {
         return new TokenPair(newAccessToken, newRefreshToken);
     }
 
-    public void addTokenBlacklist(HttpServletRequest request) {
-        String token = parseJwt(request);
-        String tokenRefresh = getRefreshTokenFromRequest(request);
-        if (token == null || tokenRefresh == null) {
-            throw new AppException(ErrorCode.TOKEN_INVALID);
+        public void addTokenBlacklist(HttpServletRequest request) {
+            String token = parseJwt(request);
+            String tokenRefresh = getRefreshTokenFromRequest(request);
+            System.out.println(tokenRefresh);
+            System.out.println(token);
+            if (token == null || tokenRefresh == null) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+
+            if (!jwtUtil.validateToken(token) || !jwtUtil.validateToken(tokenRefresh)) {
+                throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            }
+
+            long expirationSeconds_refresh = jwtUtil.getRemainingSeconds(tokenRefresh);
+            long expirationSeconds_access = jwtUtil.getRemainingSeconds(token);
+            tokenBlacklist.addToken(tokenRefresh, expirationSeconds_refresh);
+            tokenBlacklist.addToken(token, expirationSeconds_access);
+
         }
-
-        if (!jwtUtil.validateToken(token) || !jwtUtil.validateToken(tokenRefresh)) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
-        }
-
-        long expirationSeconds_refresh = jwtUtil.getRemainingSeconds(tokenRefresh);
-        long expirationSeconds_access = jwtUtil.getRemainingSeconds(token);
-        tokenBlacklist.addToken(tokenRefresh, expirationSeconds_refresh);
-        tokenBlacklist.addToken(token, expirationSeconds_access);
-
-    }
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
