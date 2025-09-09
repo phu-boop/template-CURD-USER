@@ -1,11 +1,11 @@
 import {useState} from "react";
-import Button from "../components/Button.jsx";
-import Input from "../components/Input.jsx";
-import {loginUser} from "../services/auth/authService.js";
-import Alert from "../components/Alert.jsx";
+import Button from "../../../components/ui/Button.jsx";
+import Input from "../../../components/ui/Input.jsx";
+import {loginUser} from "../services/authService.js";
+import Alert from "../../../components/ui/Alert.jsx";
 import Swal from "sweetalert2";
 import {useNavigate} from "react-router-dom";
-import {useAuthContext} from "../features/auth/AuthProvider";
+import {useAuthContext} from "../AuthProvider.jsx";
 import {FcGoogle} from "react-icons/fc";
 import {FaFacebook, FaApple} from "react-icons/fa";
 

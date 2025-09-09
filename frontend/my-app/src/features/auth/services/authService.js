@@ -1,4 +1,4 @@
-import apiConst from "../apiConst.js";
+import apiConst from "../../../services/apiConst.js";
 
 export const registerUser = (userData) =>
     apiConst.post("users/register", userData).then((res) => res.data);

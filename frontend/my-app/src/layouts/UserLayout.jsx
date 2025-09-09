@@ -1,7 +1,7 @@
 import {Outlet, Link} from "react-router-dom";
-import Button from "../components/Button.jsx";
+import Button from "../components/ui/Button.jsx";
 import {useAuthContext} from "../features/auth/AuthProvider.jsx";
-import {logout as ApiLogout} from "../services/auth/authService.js"
+import {logout as ApiLogout} from "../features/auth/services/authService.js"
 import Swal from "sweetalert2";
 const UserLayout = () => {
     const {logout} = useAuthContext();

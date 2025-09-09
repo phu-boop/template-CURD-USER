@@ -1,7 +1,7 @@
 import {useState} from "react"
-import Button from "../components/Button"
-import Input from "../components/Input"
-import {registerUser} from "../services/auth/authService.js"
+import Button from "../../../components/ui/Button.jsx"
+import Input from "../../../components/ui/Input.jsx"
+import {registerUser} from "../services/authService.js"
 
 export default function Register() {
     const [form, setForm] = useState({

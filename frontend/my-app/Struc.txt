@@ -1,98 +1,91 @@
 src/
-│── assets/                     # Static assets (ảnh, icon, css global)
-│   ├── images/
-│   ├── icons/
-│   └── styles/
-│
-│── components/                  # Component tái sử dụng
-│   ├── Button/
-│   │   └── Button.jsx
-│   └── Modal/
-│       └── Modal.jsx
-│
-│── features/                    # Theo từng module/feature
+├── assets/
+├── components/
+│   └── ui/                   # component dùng chung
+│       ├── Alert.jsx
+│       ├── Button.jsx
+│       ├── Input.jsx
+│       ├── Loading.jsx
+│       └── LoginButton.tsx
+├── features/
 │   ├── auth/
-│   │   ├── components/          # Component riêng của auth (form login, form register)
-│   │   │   ├── LoginForm.jsx
-│   │   │   └── RegisterForm.jsx
-│   │   ├── pages/
-│   │   │   ├── Login.jsx
-│   │   │   └── Register.jsx
-│   │   ├── hooks/
-│   │   │   └── useAuthContext.js   # Hook để truy cập AuthContext
-│   │   ├── AuthProvider.jsx        # Context Provider (Auth state + login/logout)
-│   │   └── authSlice.js            # Redux slice (nếu dùng Redux cho Auth)
-│   │
+│   │   ├── AuthProvider.jsx
+│   │   └── services/authService.js
 │   ├── dashboard/
-│   │   ├── pages/
-│   │   │   └── Dashboard.jsx
-│   │   └── components/
-│   │       └── DashboardCard.jsx
-│   │
-│   ├── product/
-│   │   ├── pages/
-│   │   │   └── ProductList.jsx
+│   │   └── pages/Dashboard.jsx
+│   ├── profile/
 │   │   ├── components/
-│   │   │   └── ProductItem.jsx
-│   │   └── productSlice.js
-│
-│── hooks/                       # Custom hooks tái sử dụng nhiều nơi
-│   └── useFetch.js
-│
-│── layouts/                     # Layouts (dùng chung cho nhóm routes)
+│   │   └── pages/ProfilePage.jsx
+│   └── users/
+│       ├── admin/
+│       │   ├── components/
+│       │   └── pages/UserManagement.jsx
+│       └── services/userApi.js
+├── hooks/                     # hooks dùng chung
+├── layouts/
 │   ├── AdminLayout.jsx
 │   └── UserLayout.jsx
-│
-│── pages/                       # Các trang không thuộc feature nào cụ thể
+├── pages/                     # route global
 │   ├── Home.jsx
-│   └── NotFound.jsx
-│
-│── routes/                      # Cấu hình router
+│   ├── Login.jsx
+│   ├── NotFound.jsx
+│   ├── OAuthSuccess.jsx
+│   ├── Register.jsx
+│   └── forLearner/LearnerHome.jsx
+├── routes/
 │   ├── index.jsx
 │   └── ProtectedRoute.jsx
-│
-│── services/                    # API gọi backend
-│   ├── apiClient.js
-│   └── productService.js
-│
-│── store/                       # Redux store hoặc Zustand, Recoil…
-│   └── store.js
-│
-│── utils/                       # Hàm tiện ích chung
-│   ├── formatDate.js
-│   └── storage.js                # helper cho localStorage/sessionStorage
-│
-│── App.jsx
-│── main.jsx
-
+├── services/                  # các service global (nếu có)
+│   └── apiConst.js
+├── index.css
+└── main.jsx
 
 
 
 src/
-│── features/
-│   ├── auth/                    (Đã có)
-│   ├── dashboard/               (Đã có)
-│   ├── product/                 (Đã có)
-│   ├── users/                   ← THÊM MỚI - Quản lý users
-│   │   ├── admin/               ← Dành cho admin
-│   │   │   ├── components/
-│   │   │   │   ├── UserList.jsx
-│   │   │   │   ├── UserForm.jsx
-│   │   │   │   ├── UserTable.jsx
-│   │   │   │   └── UserFilters.jsx
-│   │   │   ├── pages/
-│   │   │   │   ├── UserManagement.jsx     ← Trang chính
-│   │   │   │   ├── UserCreate.jsx
-│   │   │   │   ├── UserEdit.jsx
-│   │   │   │   └── UserDetail.jsx
-│   │   │   └── hooks/
-│   │   │       └── useUserManagement.js
-│   │   ├── user/                ← Dành cho user thường (nếu cần)
-│   │   │   ├── components/
-│   │   │   └── pages/
-│   │   ├── hooks/
-│   │   │   └── useUsers.js      ← Hook chung cho users
-│   │   ├── services/
-│   │   │   └── userService.js   ← API calls cho users
-│   │   └── userSlice.js         ← Redux slice cho users
-│   └── ...
+├── assets/                     # hình ảnh, icon, logo
+├── components/                 # component dùng chung
+│   └── ui/
+│       ├── Button.jsx
+│       ├── Input.jsx
+│       ├── Loading.jsx
+│       ├── Alert.jsx
+│       └── Navbar.jsx
+├── features/                   # chia theo tính năng
+│   ├── auth/
+│   │   ├── D/LoginForm.jsx
+│   │   ├── components/RegisterForm.jsx
+│   │   ├── pages/LoginPage.jsx
+│   │   └── services/authService.js
+│   ├── products/
+│   │   ├── components/ProductCard.jsx
+│   │   ├── components/ProductList.jsx
+│   │   ├── pages/ProductPage.jsx
+│   │   └── services/productApi.js
+│   ├── cart/
+│   │   ├── components/CartItem.jsx
+│   │   ├── pages/CartPage.jsx
+│   │   └── services/cartApi.js
+│   └── checkout/
+│       ├── components/CheckoutForm.jsx
+│       ├── pages/CheckoutPage.jsx
+│       └── services/checkoutApi.js
+├── hooks/                     # custom hooks dùng chung
+│   ├── useAuth.js
+│   ├── useCart.js
+│   └── useProducts.js
+├── layouts/                    # layout dùng chung
+│   ├── MainLayout.jsx
+│   └── AdminLayout.jsx
+├── pages/                      # route global
+│   ├── Home.jsx
+│   ├── About.jsx
+│   ├── Contact.jsx
+│   └── NotFound.jsx
+├── routes/                     # cấu hình routing
+│   ├── index.jsx
+│   └── ProtectedRoute.jsx
+├── services/                   # config API, constants
+│   └── apiConfig.js
+├── index.css
+└── main.jsx

@@ -1,4 +1,4 @@
-import userApi from '../../users/services/userApi.js';
+import mng_ from '../../dashboard/users/services/mngUserService.js';
 import React, {useState, useEffect} from 'react';
 import {useAuthContext} from '../../auth/AuthProvider.jsx';
 import {
@@ -39,7 +39,7 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const response = await userApi.getProfile();
+            const response = await mng_.getProfile();
             if (response.data.code === "1000") {
                 setFormData(response.data.data);
             } else {
@@ -77,7 +77,7 @@ const ProfileForm = () => {
             }
 
             // Update profile - sử dụng hàm từ service của bạn
-            const response = await userApi.update(id_user, formData);
+            const response = await mng_.update(id_user, formData);
             if (response.data.code === "1000") {
                 setMessage('Cập nhật thông tin thành công!');
                 setTimeout(() => setMessage(''), 3000);

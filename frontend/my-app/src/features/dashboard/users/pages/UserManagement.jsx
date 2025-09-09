@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { userApi } from "../../services/userApi";
-import UserForm from "../components/UserForm";
-import UserTable from "../components/UserTable";
-import UserFilters from "../components/UserFilters";
-import UserPagination from "../components/UserPagination";
+import { mngUserService } from "../services/mngUserService.js";
+import UserForm from "../components/UserForm.jsx";
+import UserTable from "../components/UserTable.jsx";
+import UserFilters from "../components/UserFilters.jsx";
+import UserPagination from "../components/UserPagination.jsx";
 import Swal from "sweetalert2";
 
 export default function UserManagement() {
@@ -33,7 +33,7 @@ export default function UserManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await userApi.getAll();
+      const response = await mngUserService.getAll();
       if (response.data.code === "1000") {
         setUsers(response.data.data);
         showMessage("Tải danh sách user thành công");
@@ -87,7 +87,7 @@ export default function UserManagement() {
 
     if (result.isConfirmed) {
       try {
-        await userApi.delete(userId);
+        await mngUserService.delete(userId);
         Swal.fire("Đã xóa!", "Người dùng đã được xóa.", "success");
         fetchUsers();
       } catch (error) {
@@ -100,10 +100,10 @@ export default function UserManagement() {
   const handleSubmitUser = async (userData) => {
     try {
       if (mode === "edit") {
-        await userApi.update(editingUser.id, userData);
+        await mngUserService.update(editingUser.id, userData);
         showMessage("Cập nhật user thành công");
       } else {
-        await userApi.create(userData);
+        await mngUserService.create(userData);
         showMessage("Thêm user thành công");
       }
       setModalOpen(false);

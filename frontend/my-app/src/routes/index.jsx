@@ -7,13 +7,13 @@ import UserLayout from "../layouts/UserLayout";
 
 // pages
 import Home from "../pages/Home";
-import Login from "../pages/Login.jsx";
-import Register from "../pages/Register.jsx";
+import Login from "../features/auth/pages/Login.jsx";
+import Register from "../features/auth/pages/Register.jsx";
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
-import UserManagement from "../features/users/admin/pages/UserManagement.jsx";
+import UserManagement from "../features/dashboard/users/pages/UserManagement.jsx";
 import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 import OAuthSuccess from "../pages/OAuthSuccess";
 

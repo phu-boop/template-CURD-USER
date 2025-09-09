@@ -2,7 +2,7 @@
 import {useEffect, useRef} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuthContext} from "../features/auth/AuthProvider";
-import {getInforMe} from "../services/auth/authService.js";
+import {getInforMe} from "../features/auth/services/authService.js";
 import Swal from "sweetalert2";
 
 export default function OAuthSuccess() {
