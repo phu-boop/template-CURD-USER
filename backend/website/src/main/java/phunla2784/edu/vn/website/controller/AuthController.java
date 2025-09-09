@@ -70,4 +70,25 @@ public class AuthController {
 
         return ResponseEntity.ok(ApiRespond.success("Logout successful", null));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        boolean sent = authService.sendOtp(email);
+        if (!sent) {
+            return ResponseEntity.badRequest().body("Email not found");
+        }
+        return ResponseEntity.ok("OTP sent to your email");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String email,
+                                                @RequestParam String otp,
+                                                @RequestParam String newPassword) {
+        boolean updated = authService.resetPassword(email, otp, newPassword);
+        if (!updated) {
+            return ResponseEntity.badRequest().body("Invalid or expired OTP");
+        }
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
 }

@@ -16,11 +16,11 @@ public class TokenBlacklistRedis {
 
     // Lưu token vào Redis với TTL
     public void addToken(String token, long expirationSeconds) {
-        redisTemplate.opsForValue().set(token, "logout", Duration.ofSeconds(expirationSeconds));
+        redisTemplate.opsForValue().set("LOGOUT:"+token, "logout", Duration.ofSeconds(expirationSeconds));
     }
 
     // Kiểm tra token có bị blacklist không
     public boolean contains(String token) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
+        return Boolean.TRUE.equals(redisTemplate.hasKey("LOGOUT:"+token));
     }
 }
