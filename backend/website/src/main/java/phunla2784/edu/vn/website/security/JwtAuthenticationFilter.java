@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import phunla2784.edu.vn.website.exception.ErrorCode;
+import phunla2784.edu.vn.website.service.RedisService;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,11 +25,11 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final TokenBlacklistRedis tokenBlacklist;
+    private final RedisService redisService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistRedis tokenBlacklist) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisService redisService) {
         this.jwtUtil = jwtUtil;
-        this.tokenBlacklist = tokenBlacklist;
+        this.redisService = redisService;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 email = jwtUtil.extractEmail(token);
-                if (tokenBlacklist.contains(token)) {
+                if (redisService.contains(token)) {
                     sendError(response, ErrorCode.TOKEN_LOGGED_OUT);
                     return;
                 }

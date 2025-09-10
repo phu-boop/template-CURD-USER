@@ -1,4 +1,4 @@
-import mng_ from '../../dashboard/users/services/mngUserService.js';
+import profileService from '../services/profileService.js';
 import React, {useState, useEffect} from 'react';
 import {useAuthContext} from '../../auth/AuthProvider.jsx';
 import {
@@ -39,9 +39,10 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const response = await mng_.getProfile();
+            const response = await profileService.getProfile();
             if (response.data.code === "1000") {
-                setFormData(response.data.data);
+                setFormData(response.data.data.userRespond);
+                console.log(response.data.data);
             } else {
                 setMessage('Lỗi khi tải thông tin');
             }
@@ -77,7 +78,7 @@ const ProfileForm = () => {
             }
 
             // Update profile - sử dụng hàm từ service của bạn
-            const response = await mng_.update(id_user, formData);
+            const response = await profileService.update(id_user, formData);
             if (response.data.code === "1000") {
                 setMessage('Cập nhật thông tin thành công!');
                 setTimeout(() => setMessage(''), 3000);

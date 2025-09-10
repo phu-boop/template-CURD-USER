@@ -22,6 +22,7 @@ public class PaymentController {
     @GetMapping("/pay")
     public void pay(HttpServletResponse response, @RequestParam Long orderId, @RequestParam Long amount) throws IOException {
         String url = paymentService.createPaymentUrl(orderId, amount);
+        System.out.println("1");
         response.sendRedirect(url);
     }
 

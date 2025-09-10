@@ -7,6 +7,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -35,16 +36,17 @@ public class PaymentService {
         params.put("vnp_Version", "2.1.0");
         params.put("vnp_Command", "pay");
         params.put("vnp_TmnCode", tmnCode);
-        params.put("vnp_Amount", String.valueOf(amount * 100)); // amount * 100 theo VNPAY
+        params.put("vnp_Amount", String.valueOf(amount * 100)); // VNPAY nhân 100
         params.put("vnp_CurrCode", "VND");
         params.put("vnp_TxnRef", orderId.toString());
-        params.put("vnp_OrderInfo", "Thanh toán đơn hàng #" + orderId);
+        params.put("vnp_OrderInfo", "ThanhToanDonHang " + orderId);
         params.put("vnp_ReturnUrl", returnUrl);
         params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
 
-        // sắp xếp key theo alphabet
+        // Sắp xếp key theo alphabet
         List<String> fieldNames = new ArrayList<>(params.keySet());
         Collections.sort(fieldNames);
+
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         for (String key : fieldNames) {
@@ -54,12 +56,24 @@ public class PaymentService {
                     .append(URLEncoder.encode(params.get(key), StandardCharsets.US_ASCII))
                     .append("&");
         }
-        // bỏ ký tự '&' cuối cùng
+
+        // Bỏ ký tự '&' cuối cùng
         String queryUrl = query.substring(0, query.length() - 1);
         String data = hashData.substring(0, hashData.length() - 1);
 
+        // Log kiểm tra
+        System.out.println("===== Payment Params =====");
+        params.forEach((k, v) -> System.out.println(k + " = " + v));
+        System.out.println("Data for hash: " + data);
+
         String vnp_SecureHash = hmacSHA512(hashSecret, data);
-        return paymentUrl + "?" + queryUrl + "&vnp_SecureHash=" + vnp_SecureHash;
+        System.out.println("SecureHash: " + vnp_SecureHash);
+
+        String finalUrl = paymentUrl + "?" + queryUrl + "&vnp_SecureHash=" + vnp_SecureHash;
+        System.out.println("Payment URL: " + finalUrl);
+        System.out.println("==========================");
+
+        return finalUrl;
     }
 
     private String hmacSHA512(String key, String data) {

@@ -35,8 +35,9 @@ export default function Register() {
                 setMessage(respond.message)
             }
         } catch (error) {
+            console.log(error);
             setIsError(true)
-            setMessage("Đã có lỗi xảy ra, vui lòng thử lại!")
+            setMessage(error.response.data.message)
         }
     }
 

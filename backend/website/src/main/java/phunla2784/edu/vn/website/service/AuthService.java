@@ -14,10 +14,8 @@ import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.mapper.UserMapper;
 import phunla2784.edu.vn.website.repository.UserRepository;
 import phunla2784.edu.vn.website.security.JwtUtil;
-import phunla2784.edu.vn.website.security.TokenBlacklistRedis;
 
 import java.security.SecureRandom;
-import java.util.Optional;
 
 
 @Service
@@ -26,24 +24,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
-    private final TokenBlacklistRedis tokenBlacklist;
+    private final RedisService redisService;
     private final EmailService emailService;
-    private final OtpService otpService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil,
                        UserMapper userMapper,
-                       TokenBlacklistRedis tokenBlacklist,
-                       EmailService emailService,
-                       OtpService otpService) {
+                       RedisService redisService,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.userMapper = userMapper;
-        this.tokenBlacklist = tokenBlacklist;
+        this.redisService = redisService;
         this.emailService = emailService;
-        this.otpService = otpService;
     }
 
 
@@ -83,7 +78,7 @@ public class AuthService {
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
-        if (tokenBlacklist.contains(refreshToken)) {
+        if (redisService.contains(refreshToken)) {
             throw new AppException(ErrorCode.TOKEN_LOGGED_OUT);
         }
         String newAccessToken = jwtUtil.generateAccessToken(
@@ -112,8 +107,8 @@ public class AuthService {
 
         long expirationSeconds_refresh = jwtUtil.getRemainingSeconds(tokenRefresh);
         long expirationSeconds_access = jwtUtil.getRemainingSeconds(token);
-        tokenBlacklist.addToken(tokenRefresh, expirationSeconds_refresh);
-        tokenBlacklist.addToken(token, expirationSeconds_access);
+        redisService.addToken(tokenRefresh, expirationSeconds_refresh);
+        redisService.addToken(token, expirationSeconds_access);
 
     }
 
@@ -123,7 +118,7 @@ public class AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         String otp = generateOtp(6);
-        otpService.saveOtp(email, otp, 5); // 5 phút
+        redisService.saveOtp(email, otp, 5); // 5 phút
         emailService.sendOtpEmail(email, otp);
         return true;
     }
@@ -131,12 +126,12 @@ public class AuthService {
     public boolean resetPassword(String email, String otp, String newPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        boolean validOtp = otpService.validateOtp(email, otp);
+        boolean validOtp = redisService.validateOtp(email, otp);
         if (!validOtp) return false;
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        otpService.removeOtp(email);
+        redisService.removeOtp(email);
         return true;
     }
 

@@ -6,11 +6,14 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import phunla2784.edu.vn.website.dto.request.UserRequest;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
 import phunla2784.edu.vn.website.dto.respond.UserRespond;
 import phunla2784.edu.vn.website.service.UserService;
+import phunla2784.edu.vn.website.validation.group.OnCreate;
+import phunla2784.edu.vn.website.validation.group.OnUpdate;
 
 import java.util.List;
 
@@ -40,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiRespond<UserRespond>> createUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<ApiRespond<UserRespond>> createUser(@Validated(OnCreate.class) @RequestBody UserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiRespond.success("Create User Successfully", userService.createUser(userRequest)));
     }
@@ -49,7 +52,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiRespond<UserRespond>> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserRequest userRequest) {
+            @Validated(OnUpdate.class) @Valid @RequestBody UserRequest userRequest) {
         return ResponseEntity.ok(
                 ApiRespond.success("Update User Successfully", userService.updateUser(id, userRequest))
         );
