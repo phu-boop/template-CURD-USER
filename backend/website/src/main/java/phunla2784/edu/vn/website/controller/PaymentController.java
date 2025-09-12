@@ -1,12 +1,9 @@
 package phunla2784.edu.vn.website.controller;
 
-
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import phunla2784.edu.vn.website.service.PaymentService;
 
 import java.io.IOException;
@@ -20,17 +17,24 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @GetMapping("/pay")
-    public void pay(HttpServletResponse response, @RequestParam Long orderId, @RequestParam Long amount) throws IOException {
-        String url = paymentService.createPaymentUrl(orderId, amount);
-        System.out.println("1");
+    public void pay(HttpServletResponse response,
+                    @RequestParam String orderId,
+                    @RequestParam Long amount,
+                    HttpServletRequest request) throws IOException {
+        String url = paymentService.createPaymentUrl(orderId, amount, request);
         response.sendRedirect(url);
     }
 
     @GetMapping("/return")
     public String paymentReturn(@RequestParam Map<String, String> params) {
         String vnp_ResponseCode = params.get("vnp_ResponseCode");
+        String vnp_Amount = params.get("vnp_Amount");
+
+        // ✅ chia lại cho 100 để hiển thị đúng số tiền
+        long amount = Long.parseLong(vnp_Amount) / 100;
+
         if ("00".equals(vnp_ResponseCode)) {
-            return "Thanh toán thành công!";
+            return "Thanh toán thành công! Số tiền: " + amount + " VND";
         } else {
             return "Thanh toán thất bại!";
         }

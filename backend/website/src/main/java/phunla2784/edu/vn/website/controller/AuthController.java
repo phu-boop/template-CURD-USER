@@ -3,11 +3,15 @@ package phunla2784.edu.vn.website.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import phunla2784.edu.vn.website.dto.request.ChangePasswordRequest;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
 import phunla2784.edu.vn.website.dto.respond.TokenPair;
+import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.service.AuthService;
 
 import java.util.Map;
@@ -37,6 +41,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiRespond.success("Login successful", loginRespond));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/me")
     public ResponseEntity<ApiRespond<LoginRespond>> getCurrentUser() {
         LoginRespond loginRespond = authService.getCurrentUser();
@@ -72,23 +77,26 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        boolean sent = authService.sendOtp(email);
-        if (!sent) {
-            return ResponseEntity.badRequest().body("Email not found");
-        }
-        return ResponseEntity.ok("OTP sent to your email");
+    public ResponseEntity<ApiRespond<?>> forgotPassword(@RequestParam String email) {
+        authService.sendOtp(email);
+        return ResponseEntity.ok(ApiRespond.success("OTP sent to your email", null));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String email,
-                                                @RequestParam String otp,
-                                                @RequestParam String newPassword) {
+    public ResponseEntity<ApiRespond<?>> resetPassword(@RequestParam String email,
+                                                       @RequestParam String otp,
+                                                       @RequestParam String newPassword) {
         boolean updated = authService.resetPassword(email, otp, newPassword);
         if (!updated) {
-            return ResponseEntity.badRequest().body("Invalid or expired OTP");
+            return ResponseEntity.badRequest().body(new ApiRespond<>("6000", "Password updated failure", null));
         }
-        return ResponseEntity.ok("Password updated successfully");
+        return ResponseEntity.ok(ApiRespond.success("Password updated successfully", null));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiRespond<?>> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        authService.changePassword(changePasswordRequest.getEmail(), changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
+        return ResponseEntity.ok(ApiRespond.success("Change password successfull", null));
+    }
 }

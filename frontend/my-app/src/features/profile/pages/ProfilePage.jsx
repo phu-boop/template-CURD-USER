@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ProfileSidebar from '../components/ProfileSidebar';
 import ProfileForm from '../components/ProfileForm';
-// import SecuritySettings from '../components/SecuritySettings';
+import SecuritySettings from '../components/SecuritySettings';
  import BillingInfo from '../components/BillingInfo';
 // import Notifications from '../components/Notifications';
 

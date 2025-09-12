@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -31,17 +33,22 @@ public class PaymentService {
         this.returnUrl = returnUrl;
     }
 
-    public String createPaymentUrl(Long orderId, Long amount) {
+    // PaymentService (chỉ phần chính, thay vào class của bạn)
+    public String createPaymentUrl(String orderId, Long amount, HttpServletRequest request) {
         Map<String, String> params = new HashMap<>();
         params.put("vnp_Version", "2.1.0");
         params.put("vnp_Command", "pay");
         params.put("vnp_TmnCode", tmnCode);
-        params.put("vnp_Amount", String.valueOf(amount * 100)); // VNPAY nhân 100
+        // VNPAY yêu cầu nhân 100
+        params.put("vnp_Amount", String.valueOf(amount * 100));
         params.put("vnp_CurrCode", "VND");
-        params.put("vnp_TxnRef", orderId.toString());
+        params.put("vnp_TxnRef", orderId);
         params.put("vnp_OrderInfo", "ThanhToanDonHang " + orderId);
+        params.put("vnp_OrderType", "other");
         params.put("vnp_ReturnUrl", returnUrl);
         params.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+        params.put("vnp_IpAddr", getClientIpAddr(request));
+        params.put("vnp_Locale", "vn");
 
         // Sắp xếp key theo alphabet
         List<String> fieldNames = new ArrayList<>(params.keySet());
@@ -50,28 +57,30 @@ public class PaymentService {
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         for (String key : fieldNames) {
-            hashData.append(key).append("=").append(params.get(key)).append("&");
-            query.append(URLEncoder.encode(key, StandardCharsets.US_ASCII))
-                    .append("=")
-                    .append(URLEncoder.encode(params.get(key), StandardCharsets.US_ASCII))
-                    .append("&");
+            String value = params.get(key);
+            String encKey = URLEncoder.encode(key, StandardCharsets.UTF_8);
+            String encValue = URLEncoder.encode(value, StandardCharsets.UTF_8);
+
+            // Dùng encoded key/value cho cả hashData và query (theo sample VNPAY)
+            hashData.append(encKey).append("=").append(encValue).append("&");
+            query.append(encKey).append("=").append(encValue).append("&");
         }
 
-        // Bỏ ký tự '&' cuối cùng
-        String queryUrl = query.substring(0, query.length() - 1);
-        String data = hashData.substring(0, hashData.length() - 1);
+        // remove trailing &
+        String hashDataStr = hashData.substring(0, hashData.length() - 1);
+        String queryStr = query.substring(0, query.length() - 1);
 
-        // Log kiểm tra
-        System.out.println("===== Payment Params =====");
-        params.forEach((k, v) -> System.out.println(k + " = " + v));
-        System.out.println("Data for hash: " + data);
+        // trim secret to avoid whitespace issue
+        String secret = this.hashSecret == null ? "" : this.hashSecret.trim();
 
-        String vnp_SecureHash = hmacSHA512(hashSecret, data);
+        System.out.println("Data for hash (canonical): " + hashDataStr);
+
+        String vnp_SecureHash = hmacSHA512(secret, hashDataStr);
         System.out.println("SecureHash: " + vnp_SecureHash);
 
-        String finalUrl = paymentUrl + "?" + queryUrl + "&vnp_SecureHash=" + vnp_SecureHash;
-        System.out.println("Payment URL: " + finalUrl);
-        System.out.println("==========================");
+        String finalUrl = paymentUrl + "?" + queryStr
+                + "&vnp_SecureHashType=HmacSHA512"
+                + "&vnp_SecureHash=" + vnp_SecureHash;
 
         return finalUrl;
     }
@@ -92,5 +101,13 @@ public class PaymentService {
         } catch (Exception e) {
             throw new RuntimeException("Error while calculating HMAC", e);
         }
+    }
+
+    private String getClientIpAddr(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty()) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 }

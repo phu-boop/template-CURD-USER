@@ -26,8 +26,8 @@ export default function BillingInfo() {
 
     const setHandleEditing = async () => {
         const timestamp = new Date().getTime();
-        const orderId = `0012-${timestamp}`;
-        const amount = 333000; // sẽ nhân 100 ở backend
+        const orderId = `0012${timestamp}`;
+        const amount = 3000000;
 
         // Redirect tới backend, backend sẽ trả URL VNPay đã encode và có hash
         window.location.href = `http://localhost:8080/payment/pay?orderId=${orderId}&amount=${amount}`;

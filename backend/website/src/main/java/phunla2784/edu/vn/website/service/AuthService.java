@@ -114,11 +114,10 @@ public class AuthService {
 
 
     public boolean sendOtp(String email) {
-        User user = userRepository.findByEmail(email)
+        userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
         String otp = generateOtp(6);
-        redisService.saveOtp(email, otp, 5); // 5 phút
+        redisService.saveOtp(email, otp, 5);
         emailService.sendOtpEmail(email, otp);
         return true;
     }
@@ -166,6 +165,16 @@ public class AuthService {
             otp.append(DIGITS.charAt(index));
         }
         return otp.toString();
+    }
+
+    public void changePassword(String email, String oldPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 }

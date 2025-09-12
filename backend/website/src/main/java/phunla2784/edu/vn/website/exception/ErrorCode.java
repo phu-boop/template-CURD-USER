@@ -48,7 +48,6 @@ public enum ErrorCode {
     // ===== 6xxx - Business logic errors =====
     PAYMENT_FAILED("6001", "Payment failed", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_BALANCE("6002", "Insufficient balance", HttpStatus.BAD_REQUEST),
-    ORDER_NOT_FOUND("6003", "Order not found", HttpStatus.NOT_FOUND),
     PRODUCT_OUT_OF_STOCK("6004", "Product out of stock", HttpStatus.CONFLICT);
 
     private final String code;

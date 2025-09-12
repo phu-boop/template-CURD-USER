@@ -31,15 +31,15 @@ export default function UserTable({ users, onEdit, onView, onDelete, isLoading }
     return roles.map(role => role.name).join(", ");
   };
 
-  const formatPermissions = (roles) => {
-    const permissions = new Set();
-    roles.forEach(role => {
-      role.permissions.forEach(permission => {
-        permissions.add(permission.name);
-      });
-    });
-    return Array.from(permissions).join(", ");
-  };
+  // const formatPermissions = (roles) => {
+  //   const permissions = new Set();
+  //   roles.forEach(role => {
+  //     role.permissions.forEach(permission => {
+  //       permissions.add(permission.name);
+  //     });
+  //   });
+  //   return Array.from(permissions).join(", ");
+  // };
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -92,9 +92,9 @@ export default function UserTable({ users, onEdit, onView, onDelete, isLoading }
                   <div className="text-sm font-medium text-gray-900">
                     {formatRoles(user.roles)}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {formatPermissions(user.roles)}
-                  </div>
+                  {/*<div className="text-sm text-gray-500 mt-1">*/}
+                  {/*  {formatPermissions(user.roles)}*/}
+                  {/*</div>*/}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">

@@ -16,6 +16,7 @@ import LearnerHome from "../pages/forLearner/LearnerHome.jsx";
 import UserManagement from "../features/dashboard/users/pages/UserManagement.jsx";
 import ProfilePage from "../features/profile/pages/ProfilePage.jsx";
 import OAuthSuccess from "../pages/OAuthSuccess";
+import ResetPassword from "../features/auth/pages/ResetPassword.jsx";
 
 export default function AppRoutes() {
     return (
@@ -29,6 +30,7 @@ export default function AppRoutes() {
                     <Route path="login" element={<Login/>}/>
                     <Route path="register" element={<Register/>}/>
                     <Route path="oauth-success" element={<OAuthSuccess/>}/>
+                    <Route path="reset-password" element={<ResetPassword/>}/>
                 </Route>
 
 

@@ -2,6 +2,8 @@ import {useState} from "react"
 import Button from "../../../components/ui/Button.jsx"
 import Input from "../../../components/ui/Input.jsx"
 import {registerUser} from "../services/authService.js"
+import {FcGoogle} from "react-icons/fc";
+import {FaFacebook, FaGithub} from "react-icons/fa";
 
 export default function Register() {
     const [form, setForm] = useState({
@@ -40,6 +42,26 @@ export default function Register() {
             setMessage(error.response.data.message)
         }
     }
+    const handleSocialLogin = (provider) => {
+        let authUrl = '';
+
+        switch (provider) {
+            case 'google':
+                authUrl = `http://localhost:8080/oauth2/authorization/google`;
+                break;
+            case 'facebook':
+                authUrl = `http://localhost:8080/oauth2/authorization/facebook`;
+                break;
+            case 'github':
+                authUrl = `http://localhost:8080/oauth2/authorization/github`;
+                break;
+            default:
+                console.error('Provider không được hỗ trợ');
+                return;
+        }
+
+        window.location.href = authUrl;
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-slate-100">
@@ -119,6 +141,35 @@ export default function Register() {
                 <Button variant="primary" size="sm" type="submit" className="w-full">
                     Đăng ký
                 </Button>
+
+                <div className="grid grid-cols-3 gap-3">
+                    {/* Nút Google */}
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin('google')}
+                        className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
+                    >
+                        <FcGoogle className="h-5 w-5"/>
+                    </button>
+
+                    {/* Nút Facebook */}
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin('facebook')}
+                        className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
+                    >
+                        <FaFacebook className="h-5 w-5 text-blue-600"/>
+                    </button>
+
+                    {/* Nút Apple */}
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin('github')}
+                        className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"
+                    >
+                        <FaGithub className="h-5 w-5 text-gray-900"/>
+                    </button>
+                </div>
             </form>
         </div>
     )

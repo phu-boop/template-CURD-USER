@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Shield } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, User } from 'lucide-react';
+import PasswordChangeForm from './PasswordChangeForm';
+import profileService from '../services/profileService.js';
 
 const SecuritySettings = () => {
+  const [activeTab, setActiveTab] = useState('password');
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -16,34 +19,23 @@ const SecuritySettings = () => {
     confirm: false
   });
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!passwordData.currentPassword) newErrors.currentPassword = 'Mật khẩu hiện tại là bắt buộc';
-    if (!passwordData.newPassword) newErrors.newPassword = 'Mật khẩu mới là bắt buộc';
-    else if (passwordData.newPassword.length < 6) newErrors.newPassword = 'Mật khẩu phải có ít nhất 6 ký tự';
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const checkPasswordStrength = (password) => {
+    if (!password) return { score: 0, feedback: '' };
+    let score = 0;
+    let feedback = [];
+    if (password.length >= 8) score++;
+    else feedback.push('Ít nhất 8 ký tự');
+    if (/[A-Z]/.test(password)) score++;
+    else feedback.push('Có chữ in hoa');
+    if (/[0-9]/.test(password)) score++;
+    else feedback.push('Có chữ số');
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    else feedback.push('Có ký tự đặc biệt');
+    const strengthLabels = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'];
+    return { score, strength: strengthLabels[score], feedback: feedback.length ? `Cần: ${feedback.join(', ')}` : 'Mật khẩu mạnh' };
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    try {
-      setLoading(true);
-      setMessage('Đổi mật khẩu thành công!');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
-      setMessage('Lỗi khi đổi mật khẩu: ' + (error.message || 'Vui lòng thử lại'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const passwordStrength = checkPasswordStrength(passwordData.newPassword);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,127 +44,82 @@ const SecuritySettings = () => {
   };
 
   const togglePasswordVisibility = (field) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!passwordData.currentPassword) newErrors.currentPassword = 'Mật khẩu hiện tại là bắt buộc';
+    if (!passwordData.newPassword) newErrors.newPassword = 'Mật khẩu mới là bắt buộc';
+    else if (passwordData.newPassword.length < 8) newErrors.newPassword = 'Mật khẩu phải có ít nhất 8 ký tự';
+    if (passwordData.newPassword !== passwordData.confirmPassword) newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    try {
+      setLoading(true);
+      await profileService.changePassword(sessionStorage.getItem("email"),passwordData.newPassword, passwordData.currentPassword);
+      setMessage('Đổi mật khẩu thành công!');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setMessage('Lỗi khi đổi mật khẩu: ' + (error.response?.data?.message || 'Vui lòng thử lại'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-      <div className="flex items-center space-x-3 mb-8">
-        <div className="p-3 bg-blue-100 rounded-lg">
-          <Shield className="w-6 h-6 text-blue-600" />
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="border-b border-gray-200">
+        <div className="flex items-center space-x-3 p-8 pb-4">
+          <div className="p-3 bg-blue-100 rounded-lg">
+            <Shield className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Bảo mật</h2>
+            <p className="text-gray-500 mt-1">Bảo vệ tài khoản của bạn</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Bảo mật</h2>
-          <p className="text-gray-500 mt-1">Bảo vệ tài khoản của bạn</p>
+
+        <div className="px-8 flex space-x-6">
+          <button
+            className={`py-3 px-1 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'password' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('password')}
+          >
+            Đổi mật khẩu
+          </button>
+          {/* Tab khác nếu có */}
         </div>
       </div>
 
-      {message && (
-        <div className={`mb-6 p-4 rounded-lg ${
-          message.includes('thành công') 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-red-100 text-red-700'
-        }`}>
-          {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Mật khẩu hiện tại *
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              name="currentPassword"
-              type={showPasswords.current ? 'text' : 'password'}
-              value={passwordData.currentPassword}
-              onChange={handleChange}
-              className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.currentPassword ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => togglePasswordVisibility('current')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+      <div className="p-8">
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg flex items-center ${message.includes('thành công') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            {message.includes('thành công') ? <CheckCircle className="w-5 h-5 mr-2" /> : <XCircle className="w-5 h-5 mr-2" />}
+            {message}
           </div>
-          {errors.currentPassword && (
-            <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
-          )}
-        </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Mật khẩu mới *
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              name="newPassword"
-              type={showPasswords.new ? 'text' : 'password'}
-              value={passwordData.newPassword}
-              onChange={handleChange}
-              className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.newPassword ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => togglePasswordVisibility('new')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {errors.newPassword && (
-            <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Xác nhận mật khẩu mới *
-          </label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              name="confirmPassword"
-              type={showPasswords.confirm ? 'text' : 'password'}
-              value={passwordData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => togglePasswordVisibility('confirm')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-        >
-          {loading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
-        </button>
-      </form>
+        {activeTab === 'password' && (
+          <PasswordChangeForm
+            passwordData={passwordData}
+            errors={errors}
+            showPasswords={showPasswords}
+            handleChange={handleChange}
+            togglePasswordVisibility={togglePasswordVisibility}
+            handleSubmit={handleSubmit}
+            loading={loading}
+            passwordStrength={passwordStrength}
+          />
+        )}
+      </div>
     </div>
   );
 };

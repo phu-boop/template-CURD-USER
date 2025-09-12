@@ -11,3 +11,9 @@ export const logout = () =>
 
 export const getInforMe = () =>
     apiConst.get("auth/me").then((res) => res.data);
+
+export const resetPasword = (credentials) =>
+    apiConst.post("auth/reset-password",credentials).then((res) => res.data);
+
+export const forgotPassword = (email) =>
+    apiConst.post("auth/forgot-password",email).then((res) => res.data);
