@@ -69,8 +69,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             return userRepository.save(newUser);
         });
 
-        String accessToken = jwtUtil.generateAccessToken(email, roles.toString());
-        String refreshToken = jwtUtil.generateRefreshToken(email, roles.toString());
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRoleToString());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRoleToString());
 
 
         // Set refresh token trong cookie HttpOnly

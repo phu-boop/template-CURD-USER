@@ -10,8 +10,6 @@ public class RedisService {
 
      private final RedisTemplate<String, String> redisTemplate;
 
-
-
     //Service OTP
     public RedisService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;

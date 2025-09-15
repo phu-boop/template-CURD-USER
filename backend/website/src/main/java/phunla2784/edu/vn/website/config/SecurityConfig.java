@@ -13,9 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import phunla2784.edu.vn.website.filter.RateLimitFilter;
 import phunla2784.edu.vn.website.security.JwtAuthenticationFilter;
 import phunla2784.edu.vn.website.security.OAuth2LoginSuccessHandler;
 
@@ -29,11 +31,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final String urlFrontend;
+    private final RateLimitFilter rateLimitFilter;
 
-    SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, @Value("${frontend.url}") String urlFrontend) {
+    SecurityConfig(RateLimitFilter rateLimitFilter, JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, @Value("${frontend.url}") String urlFrontend) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
         this.urlFrontend = urlFrontend;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -62,6 +66,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.accessDeniedHandler((req, res, e) -> {
                     throw e;
                 }))
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -82,5 +87,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+     @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

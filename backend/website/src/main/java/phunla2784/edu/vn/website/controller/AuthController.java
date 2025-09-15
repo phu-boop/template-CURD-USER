@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +12,11 @@ import phunla2784.edu.vn.website.dto.request.ChangePasswordRequest;
 import phunla2784.edu.vn.website.dto.respond.ApiRespond;
 import phunla2784.edu.vn.website.dto.respond.LoginRespond;
 import phunla2784.edu.vn.website.dto.respond.TokenPair;
+import phunla2784.edu.vn.website.exception.AppException;
 import phunla2784.edu.vn.website.exception.ErrorCode;
 import phunla2784.edu.vn.website.service.AuthService;
+import phunla2784.edu.vn.website.service.LoginAttemptService;
+import phunla2784.edu.vn.website.service.RecaptchaService;
 
 import java.util.Map;
 
@@ -20,13 +24,24 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+    private final RecaptchaService recaptchaService;
+    private final LoginAttemptService loginAttemptService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, RecaptchaService recaptchaService, LoginAttemptService loginAttemptService) {
+        this.loginAttemptService = loginAttemptService;
+        this.recaptchaService = recaptchaService;
         this.authService = authService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiRespond<LoginRespond>> login(@RequestBody Map<String, String> credentials, HttpServletResponse response) {
+        //Spam
+        if (loginAttemptService.isBlocked(credentials.get("email"))) {
+            throw new AppException(ErrorCode.TOO_MANY_REQUESTS);
+        }
+        //captcha
+        boolean ok = recaptchaService.verifyCaptcha(credentials.get("captchaToken"));
+        if (!ok) throw new AppException(ErrorCode.RECAPTCHA_FAILED);
         LoginRespond loginRespond = authService.login(
                 credentials.get("email"),
                 credentials.get("password")
@@ -88,7 +103,7 @@ public class AuthController {
                                                        @RequestParam String newPassword) {
         boolean updated = authService.resetPassword(email, otp, newPassword);
         if (!updated) {
-            return ResponseEntity.badRequest().body(new ApiRespond<>("6000", "Password updated failure", null));
+            return ResponseEntity.badRequest().body(new ApiRespond<>("6000", "otp code is incorrect", null));
         }
         return ResponseEntity.ok(ApiRespond.success("Password updated successfully", null));
     }

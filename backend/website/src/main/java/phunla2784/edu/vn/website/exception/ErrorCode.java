@@ -21,6 +21,7 @@ public enum ErrorCode {
     PASSWORD_INVALID_FORMAT("2008", "Password must include uppercase, lowercase, number, and special character", HttpStatus.BAD_REQUEST),
     AGE_TOO_YOUNG("2009", "User must be at least 18 years old", HttpStatus.BAD_REQUEST),
     PHONE_INVALID_FORMAT("2010", "Phone number must be 10-12 digits", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS("2011", "Too many requests", HttpStatus.TOO_MANY_REQUESTS),
 
     // ===== 3xxx - Server errors =====
     INTERNAL_ERROR("3001", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -34,7 +35,8 @@ public enum ErrorCode {
     TOKEN_INVALID("4004", "Invalid token", HttpStatus.UNAUTHORIZED),
     ACCOUNT_LOCKED("4005", "Account is locked", HttpStatus.FORBIDDEN),
     TOKEN_LOGGED_OUT("4006", "Token logged out", HttpStatus.UNAUTHORIZED),
-    INVALID_REFRESH_TOKEN("4007","Invalid refresh token",HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("4007", "Invalid refresh token", HttpStatus.UNAUTHORIZED),
+    RECAPTCHA_FAILED("4008", "reCAPTCHA verification failed", HttpStatus.FORBIDDEN),
     // ===== 5xxx - Data & DB errors =====
     USER_NOT_FOUND("5001", "User not found", HttpStatus.NOT_FOUND),
     EMAIL_ALREADY_EXISTS("5002", "Email already exists", HttpStatus.CONFLICT),

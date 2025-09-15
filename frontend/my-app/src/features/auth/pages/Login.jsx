@@ -8,34 +8,44 @@ import {useNavigate} from "react-router-dom";
 import {useAuthContext} from "../AuthProvider.jsx";
 import {FcGoogle} from "react-icons/fc";
 import {FaFacebook, FaGithub} from "react-icons/fa";
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 export default function Login() {
     const navigate = useNavigate();
     const {login} = useAuthContext();
-    const [form, setForm] = useState({email: "", password: ""});
+    const [form, setForm] = useState({email: "", password: "", captchaToken: ""});
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setForm({...form, [e.target.name]: e.target.value});
     };
+    const handleCaptchaChange = (token) => {
+        setForm((prev) => ({...prev, captchaToken: token}));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+        if (!form.captchaToken) {
+            setError("Vui lòng xác nhận reCAPTCHA");
+            return;
+        }
         try {
-            const response = await loginUser(form);
+            const response = await loginUser({
+                ...form,
+            });
 
             if (response.code === "1000") {
                 const userData = response.data.userRespond;
-                const token = response.data.token;
+                const jwtToken = response.data.token;
 
                 const rolesArray = userData.roles.map((role) => role.name);
 
                 login(
-                    token,
+                    jwtToken,
                     rolesArray,
                     userData.id,
                     userData.email,
@@ -63,11 +73,12 @@ export default function Login() {
             }
         } catch (err) {
             console.error(err);
-            setError(err.response.data.message || "Đăng nhập thất bại");
+            setError(err.response?.data?.message || "Đăng nhập thất bại");
         } finally {
             setLoading(false);
         }
     };
+
 
     const handleSocialLogin = (provider) => {
         let authUrl = '';
@@ -114,6 +125,11 @@ export default function Login() {
                     value={form.password}
                     onChange={handleChange}
                     required
+                />
+
+                <ReCAPTCHA
+                    sitekey="6Le2JsorAAAAAPGgQkD_V9c86htgiqaKgYyV4Yj_"
+                    onChange={handleCaptchaChange}
                 />
 
                 {error && (
