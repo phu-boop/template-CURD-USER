@@ -1,24 +1,36 @@
-// src/main/java/phunla2784/edu/vn/website/security/JwtAuthenticationFilter.java
 package phunla2784.edu.vn.website.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import phunla2784.edu.vn.website.exception.ErrorCode;
+import phunla2784.edu.vn.website.service.RedisService;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtil jwtUtil;
+
+    private final JwtUtil jwtUtil;
+    private final RedisService redisService;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisService redisService) {
+        this.jwtUtil = jwtUtil;
+        this.redisService = redisService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -26,23 +38,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String email = null;
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            email = jwtUtil.extractEmail(token);
-        }
-
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            if (jwtUtil.isTokenValid(token, email)) {
-                String role = jwtUtil.extractRole(token);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                email = jwtUtil.extractEmail(token);
+                if (redisService.contains(token)) {
+                    sendError(response, ErrorCode.TOKEN_LOGGED_OUT);
+                    return;
+                }
             }
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (jwtUtil.isTokenValid(token, email)) {
+                    String roleStr = jwtUtil.extractRole(token);
+                    List<GrantedAuthority> authorities = Arrays.stream(roleStr.split(","))
+                            .map(String::trim)
+                            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+                            .collect(Collectors.toList());
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(email, null, authorities);
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        } catch (ExpiredJwtException ex) {
+            sendError(response, ErrorCode.TOKEN_EXPIRED);
+            return;
+        } catch (JwtException ex) {
+            sendError(response, ErrorCode.TOKEN_INVALID);
+            return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void sendError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType("application/json");
+        response.getWriter().write("{\"code\":\"" + errorCode.getCode() + "\",\"message\":\"" + errorCode.getMessage() + "\"}");
     }
 }

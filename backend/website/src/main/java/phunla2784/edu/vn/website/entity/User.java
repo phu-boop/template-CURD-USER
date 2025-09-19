@@ -1,22 +1,23 @@
 package phunla2784.edu.vn.website.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import phunla2784.edu.vn.website.enums.Gender;
-import phunla2784.edu.vn.website.enums.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,8 +25,14 @@ public class User {
     @Column(nullable = false, unique = true)
     String email;
     String password;
-    @Enumerated(EnumType.STRING)
-    Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @JsonIgnore
+    Set<Role> roles;
     String name;
     String fullName;
     String phone;
@@ -38,4 +45,13 @@ public class User {
     @CreationTimestamp
     @Column(updatable = false)
     LocalDateTime createdAt;
+
+    public String getRoleToString() {
+        if (this.roles == null || this.roles.isEmpty()) {
+            return "";
+        }
+        return this.roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.joining());
+    }
 }
